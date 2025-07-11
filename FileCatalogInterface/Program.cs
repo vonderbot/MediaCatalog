@@ -13,33 +13,33 @@ namespace FileCatalogInterface
         {
             try
             {
-                // 1) Перевіряємо наявність файлу конфігурації
+                // 1) ���������� �������� ����� �����������
                 var configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSettings);
                 if (!File.Exists(configFile))
-                    throw new FileNotFoundException("Файл конфігурації не знайдено.", configFile);
+                    throw new FileNotFoundException("���� ����������� �� ��������.", configFile);
 
-                // 2) Завантажуємо конфігурацію
+                // 2) ����������� �����������
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile(AppSettings, optional: false, reloadOnChange: true)
                     .Build();
 
-                // 3) Перевіряємо наявність ключа
+                // 3) ���������� �������� �����
                 var section = configuration.GetSection(VideoSettingsDirectoryKey);
                 if (!section.Exists() || string.IsNullOrWhiteSpace(section.Value))
                     throw new KeyNotFoundException(
-                        $"У конфігурації відсутнє або порожнє налаштування '{VideoSettingsDirectoryKey}'.");
+                        $"� ����������� ������ ��� ������ ������������ '{VideoSettingsDirectoryKey}'.");
 
-                // 4) Перевіряємо, що директорія існує
+                // 4) ����������, �� ��������� ����
                 var videoDir = section.Value!;
                 if (!Directory.Exists(videoDir))
                     throw new DirectoryNotFoundException(
-                        $"Вказана в конфігурації директорія не знайдена: {videoDir}");
+                        $"������� � ����������� ��������� �� ��������: {videoDir}");
 
-                // 5) Ініціалізуємо WinForms та LibVLCSharp
+                // 5) ���������� WinForms
                 ApplicationConfiguration.Initialize();
 
-                // 6) Запускаємо форму
+                // 6) ��������� �����
                 var controller = new VideoController(videoDir);
                 Application.Run(new Form1(controller));
             }
@@ -47,25 +47,25 @@ namespace FileCatalogInterface
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     $"{ex.Message}\n{ex.FileName}",
-                    "Конфігураційний файл не знайдено");
+                    "�������������� ���� �� ��������");
             }
             catch (KeyNotFoundException ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     ex.Message,
-                    "Налаштування не знайдено");
+                    "������������ �� ��������");
             }
             catch (DirectoryNotFoundException ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     ex.Message,
-                    "Директорію з відео не знайдено");
+                    "��������� � ���� �� ��������");
             }
             catch (Exception ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
-                    $"Невідома помилка:\n{ex.Message}", 
-                    "Помилка");
+                    $"������� �������:\n{ex.Message}", 
+                    "�������");
             }
         }
     }

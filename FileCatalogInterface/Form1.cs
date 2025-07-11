@@ -16,7 +16,7 @@ namespace FileCatalogInterface
         {
             InitializeComponent();
 
-            Core.Initialize(); // важно
+            Core.Initialize(); // �����
 
             _libVlc = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVlc);
@@ -57,11 +57,11 @@ namespace FileCatalogInterface
                 return;
             }
 
-            long current = _mediaPlayer.Time;        // текуща¤ позици¤ в мс
-            long total = _mediaPlayer.Length;        // обща¤ длительность в мс
+            long current = _mediaPlayer.Time;        // ������ ������ � ��
+            long total = _mediaPlayer.Length;        // ���� ������������ � ��
 
             lblPosition.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
-            // ќбновление позиции ползунка
+            // ���������� ������� ��������
             trackBarSeek.Value = (int)(current * 1000 / total);
         }
         private static string FormatTime(long milliseconds)
@@ -126,6 +126,17 @@ namespace FileCatalogInterface
             tb.Value = Math.Max(tb.Minimum, Math.Min(tb.Maximum, newValue));
             _mediaPlayer.Time = tb.Value * _mediaPlayer.Length / tb.Maximum;
             _isSeeking = false;
+        }
+
+        private void trackBarVolume_MouseDown(object sender, MouseEventArgs e)
+        {
+            TrackBar tb = (TrackBar)sender;
+            int mouseY = e.Y;
+            int sliderHeight = tb.Height;
+            int newValue = tb.Maximum - (int)((double)mouseY / sliderHeight * tb.Maximum); // �����������
+            tb.Value = Math.Max(tb.Minimum, Math.Min(tb.Maximum, newValue));
+            _mediaPlayer.Volume = tb.Value;
+            lblVolume.Text = $"Volume: {tb.Value}%";
         }
     }
 }

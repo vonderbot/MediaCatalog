@@ -124,6 +124,7 @@
             trackBarVolume.TickFrequency = 10;
             trackBarVolume.Value = 50;
             trackBarVolume.Scroll += trackBarVolume_Scroll;
+            trackBarVolume.MouseDown += trackBarVolume_MouseDown;
             // 
             // lblVolume
             // 
