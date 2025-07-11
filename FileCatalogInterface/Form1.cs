@@ -8,11 +8,11 @@ namespace FileCatalogInterface
     {
         private LibVLC _libVLC;
         private MediaPlayer _mediaPlayer;
-        VideoController videoControl = new VideoController();
+        VideoController videoControl;
         private bool _isSeeking = false;
 
 
-        public Form1()
+        public Form1(VideoController newController)
         {
             InitializeComponent();
 
@@ -20,7 +20,7 @@ namespace FileCatalogInterface
 
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
-
+            videoControl = newController;
             videoView1.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = trackBarVolume.Value;
             lblVolume.Text = $"Volume: {trackBarVolume.Value}%";
