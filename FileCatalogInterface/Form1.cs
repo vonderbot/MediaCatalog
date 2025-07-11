@@ -8,7 +8,7 @@ namespace FileCatalogInterface
     {
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
-        readonly VideoController _videoControl;
+        private readonly VideoController _videoControl;
         private bool _isSeeking = false;
 
 
