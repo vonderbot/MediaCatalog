@@ -6,9 +6,9 @@ namespace FileCatalogInterface
 
     public partial class Form1 : Form
     {
-        private LibVLC _libVLC;
-        private MediaPlayer _mediaPlayer;
-        VideoController videoControl;
+        private readonly LibVLC _libVlc;
+        private readonly MediaPlayer _mediaPlayer;
+        readonly VideoController _videoControl;
         private bool _isSeeking = false;
 
 
@@ -16,14 +16,14 @@ namespace FileCatalogInterface
         {
             InitializeComponent();
 
-            Core.Initialize(); // âàæíî
+            Core.Initialize(); // Ð²Ð°Ð¶Ð½Ð¾
 
-            _libVLC = new LibVLC();
-            _mediaPlayer = new MediaPlayer(_libVLC);
-            videoControl = newController;
+            _libVlc = new LibVLC();
+            _mediaPlayer = new MediaPlayer(_libVlc);
+            _videoControl = newController;
             videoView1.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = trackBarVolume.Value;
-            lblVolume.Text = $"Volume: {trackBarVolume.Value}%";
+            lblVolume.Text = $@"Volume: {trackBarVolume.Value}%";
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -32,9 +32,9 @@ namespace FileCatalogInterface
 
         private void btnPlay_Click(object sender, EventArgs e)
         {
-            string videoPath = videoControl.GetFirstFile();
+            string videoPath = _videoControl.GetFirstFile();
 
-            var media = new Media(_libVLC, videoPath, FromType.FromPath);
+            var media = new Media(_libVlc, videoPath, FromType.FromPath);
             _mediaPlayer.Play(media);
             positionTimer.Start();
         }
@@ -47,24 +47,24 @@ namespace FileCatalogInterface
         private void btnStop_Click(object sender, EventArgs e)
         {
             _mediaPlayer?.Stop();
-            lblPosition.Text = "00:00 / 00:00";
+            lblPosition.Text = @"00:00 / 00:00";
         }
 
         private void positionTimer_Tick(object sender, EventArgs e)
         {
-            if (_mediaPlayer == null || !_mediaPlayer.IsPlaying || _isSeeking)
+            if (!_mediaPlayer.IsPlaying || _isSeeking)
             {
                 return;
             }
 
-            long current = _mediaPlayer.Time;        // òåêóùàÿ ïîçèöèÿ â ìñ
-            long total = _mediaPlayer.Length;        // îáùàÿ äëèòåëüíîñòü â ìñ
+            long current = _mediaPlayer.Time;        // Ñ‚ÐµÐºÑƒÑ‰Ð°Â¤ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Â¤ Ð² Ð¼Ñ
+            long total = _mediaPlayer.Length;        // Ð¾Ð±Ñ‰Ð°Â¤ Ð´Ð»Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ð² Ð¼Ñ
 
-            lblPosition.Text = $"{FormatTime(current)} / {FormatTime(total)}";
-            // Îáíîâëåíèå ïîçèöèè ïîëçóíêà
+            lblPosition.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
+            // ÑœÐ±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸ Ð¿Ð¾Ð»Ð·ÑƒÐ½ÐºÐ°
             trackBarSeek.Value = (int)(current * 1000 / total);
         }
-        private string FormatTime(long milliseconds)
+        private static string FormatTime(long milliseconds)
         {
             var ts = TimeSpan.FromMilliseconds(milliseconds);
             return $"{ts.Minutes:D2}:{ts.Seconds:D2}";
@@ -72,16 +72,14 @@ namespace FileCatalogInterface
 
         private void trackBarSeek_Scroll(object sender, EventArgs e)
         {
-            if (_mediaPlayer != null && _mediaPlayer.Length > 0)
-            {
-                long newTime = trackBarSeek.Value * _mediaPlayer.Length / 1000;
-                _mediaPlayer.Time = newTime;
-            }
+            if (_mediaPlayer.Length <= 0) return;
+            long newTime = trackBarSeek.Value * _mediaPlayer.Length / 1000;
+            _mediaPlayer.Time = newTime;
         }
 
         private void trackBarSeek_MouseUp(object sender, MouseEventArgs e)
         {
-            if (_mediaPlayer == null || _mediaPlayer.Length <= 0)
+            if (_mediaPlayer.Length <= 0)
             {
                 return;
             }
@@ -96,7 +94,7 @@ namespace FileCatalogInterface
 
         private void trackBarSeek_MouseDown(object sender, MouseEventArgs e)
         {
-            if (_mediaPlayer == null || _mediaPlayer.Length <= 0)
+            if (_mediaPlayer.Length <= 0)
             {
                 return;
             }
@@ -111,16 +109,13 @@ namespace FileCatalogInterface
 
         private void trackBarVolume_Scroll(object sender, EventArgs e)
         {
-            if (_mediaPlayer != null)
-            {
-                _mediaPlayer.Volume = trackBarVolume.Value;
-                lblVolume.Text = $"Volume: {trackBarVolume.Value}%";
-            }
+            _mediaPlayer.Volume = trackBarVolume.Value;
+            lblVolume.Text = $@"Volume: {trackBarVolume.Value}%";
         }
 
-        private void trackBarMovement(object sender, MouseEventArgs e)
+        private void TrackBarMovement(object sender, MouseEventArgs e)
         {
-            if (_mediaPlayer == null || _mediaPlayer.Length <= 0)
+            if (_mediaPlayer.Length <= 0)
             {
                 return;
             }
