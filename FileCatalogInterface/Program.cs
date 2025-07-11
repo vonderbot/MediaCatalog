@@ -19,9 +19,8 @@ namespace FileCatalogInterface
             // 2) Дістаємо шлях до теки відео
             var videoDir = config["VideoSettings:Directory"];
 
-            // 3) Ініціалізація WinForms та LibVLCSharp
+            // 3) Ініціалізація WinForms
             ApplicationConfiguration.Initialize();
-            Core.Initialize();            // LibVLCSharp
 
             // 4) Створюємо VideoController із переданим шляхом
             var controller = new VideoController(videoDir);
