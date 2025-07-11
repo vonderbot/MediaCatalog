@@ -8,15 +8,17 @@ namespace FileCatalogInterface
     {
         private LibVLC _libVLC;
         private MediaPlayer _mediaPlayer;
-        VideoController videoControl = new VideoController();
+        VideoController videoControl;
         private bool _isSeeking = false;
 
 
-        public Form1()
+        public Form1(VideoController controller)
         {
+            videoControl = controller;
+
             InitializeComponent();
 
-            Core.Initialize(); // важно
+            Core.Initialize(); // пїЅпїЅпїЅпїЅпїЅ
 
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
@@ -57,11 +59,11 @@ namespace FileCatalogInterface
                 return;
             }
 
-            long current = _mediaPlayer.Time;        // текущая позиция в мс
-            long total = _mediaPlayer.Length;        // общая длительность в мс
+            long current = _mediaPlayer.Time;        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ
+            long total = _mediaPlayer.Length;        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ
 
             lblPosition.Text = $"{FormatTime(current)} / {FormatTime(total)}";
-            // Обновление позиции ползунка
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             trackBarSeek.Value = (int)(current * 1000 / total);
         }
         private string FormatTime(long milliseconds)

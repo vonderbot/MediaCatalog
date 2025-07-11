@@ -2,26 +2,19 @@
 {
     public class VideoController
     {
-        static string dirName = "C:\\Папка Богдана(изменённая)\\да\\Видео\\2D";
-        DirectoryInfo directory;
-        FileInfo[] files;
+        private readonly string _dirName;
+        private readonly FileInfo[] _files;
 
-        public VideoController()
+        public VideoController(string dirName)
         {
-            directory = new DirectoryInfo(dirName);
-            files = directory.GetFiles();
+            _dirName = dirName;
+            var directory = new DirectoryInfo(dirName);
+            _files = directory.GetFiles();
         }
 
         public string GetFirstFile()
         {
-            if (files.Length > 0)
-            {
-                return files[0].FullName;
-            }
-            else
-            {
-                return "No files in directory";
-            }
+            return _files.Length > 0 ? _files[0].FullName : "No files in directory";
         }
     }
 }
