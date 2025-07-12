@@ -13,33 +13,33 @@ namespace FileCatalogInterface
         {
             try
             {
-                // 1) ���������� �������� ����� �����������
+                // 1) Check for a configuration file
                 var configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSettings);
                 if (!File.Exists(configFile))
-                    throw new FileNotFoundException("���� ����������� �� ��������.", configFile);
+                    throw new FileNotFoundException("Configuration file not found.", configFile);
 
-                // 2) ����������� �����������
+                // 2) Upload the configuration
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile(AppSettings, optional: false, reloadOnChange: true)
                     .Build();
 
-                // 3) ���������� �������� �����
+                // 3) Check for the key
                 var section = configuration.GetSection(VideoSettingsDirectoryKey);
                 if (!section.Exists() || string.IsNullOrWhiteSpace(section.Value))
                     throw new KeyNotFoundException(
-                        $"� ����������� ������ ��� ������ ������������ '{VideoSettingsDirectoryKey}'.");
+                        $"There is a missing or empty setting in the configuration'{VideoSettingsDirectoryKey}'.");
 
-                // 4) ����������, �� ��������� ����
+                // 4) Check that the directory exists
                 var videoDir = section.Value!;
                 if (!Directory.Exists(videoDir))
                     throw new DirectoryNotFoundException(
-                        $"������� � ����������� ��������� �� ��������: {videoDir}");
+                        $"The directory specified in the configuration was not found: {videoDir}");
 
-                // 5) ���������� WinForms
+                // 5) Initialize WinForms
                 ApplicationConfiguration.Initialize();
 
-                // 6) ��������� �����
+                // 6) Run the form
                 var controller = new VideoController(videoDir);
                 Application.Run(new Form1(controller));
             }
@@ -47,25 +47,25 @@ namespace FileCatalogInterface
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     $"{ex.Message}\n{ex.FileName}",
-                    "�������������� ���� �� ��������");
+                    "Configuration file not found");
             }
             catch (KeyNotFoundException ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     ex.Message,
-                    "������������ �� ��������");
+                    "Settings not found");
             }
             catch (DirectoryNotFoundException ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
                     ex.Message,
-                    "��������� � ���� �� ��������");
+                    "Video directory not found");
             }
             catch (Exception ex)
             {
                 MessageBoxHelper.ShowErrorBoxMessage(
-                    $"������� �������:\n{ex.Message}", 
-                    "�������");
+                    $"Unknown error:\n{ex.Message}",
+                    "Error");
             }
         }
     }

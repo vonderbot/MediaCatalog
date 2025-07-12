@@ -16,7 +16,7 @@ namespace FileCatalogInterface
         {
             InitializeComponent();
 
-            Core.Initialize(); // �����
+            Core.Initialize(); // важно
 
             _libVlc = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVlc);
@@ -57,11 +57,11 @@ namespace FileCatalogInterface
                 return;
             }
 
-            long current = _mediaPlayer.Time;        // ������ ������ � ��
-            long total = _mediaPlayer.Length;        // ���� ������������ � ��
+            long current = _mediaPlayer.Time;        // текущая позиция в мс
+            long total = _mediaPlayer.Length;        // общая длительность в мс
 
             lblPosition.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
-            // ���������� ������� ��������
+            // обновление позиции ползунка
             trackBarSeek.Value = (int)(current * 1000 / total);
         }
         private static string FormatTime(long milliseconds)
@@ -133,7 +133,7 @@ namespace FileCatalogInterface
             TrackBar tb = (TrackBar)sender;
             int mouseY = e.Y;
             int sliderHeight = tb.Height;
-            int newValue = tb.Maximum - (int)((double)mouseY / sliderHeight * tb.Maximum); // �����������
+            int newValue = tb.Maximum - (int)((double)mouseY / sliderHeight * tb.Maximum);
             tb.Value = Math.Max(tb.Minimum, Math.Min(tb.Maximum, newValue));
             _mediaPlayer.Volume = tb.Value;
             lblVolume.Text = $"Volume: {tb.Value}%";
