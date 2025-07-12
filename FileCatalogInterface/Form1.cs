@@ -6,7 +6,7 @@
 
     public partial class Form1 : Form
     {
-        //незаебись
+        //заїбись?
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoController _videoControl;
