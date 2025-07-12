@@ -6,7 +6,6 @@ namespace FileCatalogInterface
 
     public partial class Form1 : Form
     {
-        //Заїбись
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoController _videoControl;
