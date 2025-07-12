@@ -1,4 +1,4 @@
-namespace FileCatalogInterface
+п»їnamespace FileCatalogInterface
 {
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
@@ -6,7 +6,7 @@ namespace FileCatalogInterface
 
     public partial class Form1 : Form
     {
-        //заебись
+        //РЅРµР·Р°РµР±РёСЃСЊ
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoController _videoControl;
@@ -17,7 +17,7 @@ namespace FileCatalogInterface
         {
             InitializeComponent();
 
-            Core.Initialize(); // важно
+            Core.Initialize(); // РІР°Р¶РЅРѕ
 
             _libVlc = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVlc);
@@ -58,11 +58,11 @@ namespace FileCatalogInterface
                 return;
             }
 
-            long current = _mediaPlayer.Time;        // текущая позиция в мс
-            long total = _mediaPlayer.Length;        // общая длительность в мс
+            long current = _mediaPlayer.Time;        // С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ РјСЃ
+            long total = _mediaPlayer.Length;        // РѕР±С‰Р°СЏ РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РІ РјСЃ
 
             lblPosition.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
-            // обновление позиции ползунка
+            // РѕР±РЅРѕРІР»РµРЅРёРµ РїРѕР·РёС†РёРё РїРѕР»Р·СѓРЅРєР°
             trackBarSeek.Value = (int)(current * 1000 / total);
         }
         private static string FormatTime(long milliseconds)
