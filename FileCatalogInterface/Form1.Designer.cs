@@ -30,7 +30,6 @@
         {
             components = new System.ComponentModel.Container();
             videoView1 = new LibVLCSharp.WinForms.VideoView();
-            btnPlay = new Button();
             btnPause = new Button();
             btnStop = new Button();
             lblPosition = new Label();
@@ -38,6 +37,8 @@
             trackBarSeek = new TrackBar();
             trackBarVolume = new TrackBar();
             lblVolume = new Label();
+            NextFile = new Button();
+            PreviousFile = new Button();
             ((System.ComponentModel.ISupportInitialize)videoView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBarSeek).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBarVolume).BeginInit();
@@ -53,19 +54,9 @@
             videoView1.TabIndex = 0;
             videoView1.Text = "videoView1";
             // 
-            // btnPlay
-            // 
-            btnPlay.Location = new Point(12, 8);
-            btnPlay.Name = "btnPlay";
-            btnPlay.Size = new Size(75, 23);
-            btnPlay.TabIndex = 1;
-            btnPlay.Text = "Play";
-            btnPlay.UseVisualStyleBackColor = true;
-            btnPlay.Click += btnPlay_Click;
-            // 
             // btnPause
             // 
-            btnPause.Location = new Point(93, 8);
+            btnPause.Location = new Point(12, 8);
             btnPause.Name = "btnPause";
             btnPause.Size = new Size(75, 23);
             btnPause.TabIndex = 2;
@@ -75,7 +66,7 @@
             // 
             // btnStop
             // 
-            btnStop.Location = new Point(174, 8);
+            btnStop.Location = new Point(93, 8);
             btnStop.Name = "btnStop";
             btnStop.Size = new Size(75, 23);
             btnStop.TabIndex = 3;
@@ -86,7 +77,7 @@
             // lblPosition
             // 
             lblPosition.AutoSize = true;
-            lblPosition.Location = new Point(492, 12);
+            lblPosition.Location = new Point(495, 12);
             lblPosition.Name = "lblPosition";
             lblPosition.Size = new Size(72, 15);
             lblPosition.TabIndex = 4;
@@ -98,13 +89,13 @@
             // 
             // trackBarSeek
             // 
+            trackBarSeek.Anchor = AnchorStyles.None;
             trackBarSeek.AutoSize = false;
-            trackBarSeek.Dock = DockStyle.Bottom;
-            trackBarSeek.Location = new Point(0, 417);
+            trackBarSeek.Location = new Point(12, 417);
             trackBarSeek.Margin = new Padding(0);
             trackBarSeek.Maximum = 1000;
             trackBarSeek.Name = "trackBarSeek";
-            trackBarSeek.Size = new Size(624, 22);
+            trackBarSeek.Size = new Size(597, 22);
             trackBarSeek.TabIndex = 5;
             trackBarSeek.TickFrequency = 0;
             trackBarSeek.TickStyle = TickStyle.None;
@@ -114,12 +105,12 @@
             // 
             // trackBarVolume
             // 
-            trackBarVolume.Dock = DockStyle.Right;
-            trackBarVolume.Location = new Point(579, 0);
+            trackBarVolume.Anchor = AnchorStyles.None;
+            trackBarVolume.Location = new Point(579, 323);
             trackBarVolume.Maximum = 100;
             trackBarVolume.Name = "trackBarVolume";
             trackBarVolume.Orientation = Orientation.Vertical;
-            trackBarVolume.Size = new Size(45, 417);
+            trackBarVolume.Size = new Size(45, 91);
             trackBarVolume.TabIndex = 6;
             trackBarVolume.TickFrequency = 10;
             trackBarVolume.Value = 50;
@@ -129,24 +120,45 @@
             // lblVolume
             // 
             lblVolume.AutoSize = true;
-            lblVolume.Location = new Point(346, 12);
+            lblVolume.Location = new Point(414, 12);
             lblVolume.Name = "lblVolume";
             lblVolume.Size = new Size(75, 15);
             lblVolume.TabIndex = 7;
             lblVolume.Text = "Volume: 50%";
             // 
+            // NextFile
+            // 
+            NextFile.Location = new Point(294, 8);
+            NextFile.Name = "NextFile";
+            NextFile.Size = new Size(114, 23);
+            NextFile.TabIndex = 8;
+            NextFile.Text = "NextFile";
+            NextFile.UseVisualStyleBackColor = true;
+            NextFile.Click += NextFile_Click;
+            // 
+            // PreviousFile
+            // 
+            PreviousFile.Location = new Point(174, 8);
+            PreviousFile.Name = "PreviousFile";
+            PreviousFile.Size = new Size(114, 23);
+            PreviousFile.TabIndex = 9;
+            PreviousFile.Text = "PreviousFile";
+            PreviousFile.UseVisualStyleBackColor = true;
+            PreviousFile.Click += PreviousFile_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(624, 439);
+            ClientSize = new Size(913, 587);
+            Controls.Add(PreviousFile);
+            Controls.Add(NextFile);
             Controls.Add(lblVolume);
             Controls.Add(trackBarVolume);
             Controls.Add(trackBarSeek);
             Controls.Add(lblPosition);
             Controls.Add(btnStop);
             Controls.Add(btnPause);
-            Controls.Add(btnPlay);
             Controls.Add(videoView1);
             Name = "Form1";
             Text = "Form1";
@@ -161,7 +173,6 @@
         #endregion
 
         private LibVLCSharp.WinForms.VideoView videoView1;
-        private Button btnPlay;
         private Button btnPause;
         private Button btnStop;
         private Label lblPosition;
@@ -169,5 +180,7 @@
         private TrackBar trackBarSeek;
         private TrackBar trackBarVolume;
         private Label lblVolume;
+        private Button NextFile;
+        private Button PreviousFile;
     }
 }

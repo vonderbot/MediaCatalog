@@ -28,20 +28,17 @@
 
         private void Form1_Load(object sender, EventArgs e)
         {
-        }
-
-        private void btnPlay_Click(object sender, EventArgs e)
-        {
             string videoPath = _videoControl.GetFirstFile();
-
             var media = new Media(_libVlc, videoPath, FromType.FromPath);
             _mediaPlayer.Play(media);
             positionTimer.Start();
+            btnPause.Text = "Play";
         }
 
         private void btnPause_Click(object sender, EventArgs e)
         {
             _mediaPlayer?.Pause();
+            btnPause.Text = btnPause.Text == "Pause" ? "Play" : "Pause";
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -137,6 +134,24 @@
             tb.Value = Math.Max(tb.Minimum, Math.Min(tb.Maximum, newValue));
             _mediaPlayer.Volume = tb.Value;
             lblVolume.Text = $"Volume: {tb.Value}%";
+        }
+
+        private void NextFile_Click(object sender, EventArgs e)
+        {
+            string videoPath = _videoControl.GetFile(1);
+
+            var media = new Media(_libVlc, videoPath, FromType.FromPath);
+            _mediaPlayer.Play(media);
+            positionTimer.Start();
+        }
+
+        private void PreviousFile_Click(object sender, EventArgs e)
+        {
+            string videoPath = _videoControl.GetFile(-1);
+
+            var media = new Media(_libVlc, videoPath, FromType.FromPath);
+            _mediaPlayer.Play(media);
+            positionTimer.Start();
         }
     }
 }
