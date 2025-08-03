@@ -2,12 +2,14 @@
 {
     public interface IFileService
     {
-        public void ChangeDirectory(string directoryName);
+        public void DirectoryReshafle(string directoryName);
 
         public string GetDirectory();
 
         public string[] GetFileNames();
 
         public string GetFile(int index);
+
+        public int GetFileIndex(string file);
     }
 }

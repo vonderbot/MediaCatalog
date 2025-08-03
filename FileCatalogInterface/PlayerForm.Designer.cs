@@ -39,11 +39,14 @@
             VolumeLbl = new Label();
             NextFile = new Button();
             PreviousFile = new Button();
-            ListBoxVideos = new ListBox();
+            ListBoxFiles = new ListBox();
+            contextMenuFiles = new ContextMenuStrip(components);
+            renameToolStripMenuItem = new ToolStripMenuItem();
             BtnSelectFolder = new Button();
             ((System.ComponentModel.ISupportInitialize)VideoView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).BeginInit();
+            contextMenuFiles.SuspendLayout();
             SuspendLayout();
             // 
             // VideoView
@@ -146,14 +149,28 @@
             PreviousFile.UseVisualStyleBackColor = true;
             PreviousFile.Click += PreviousFile_Click;
             // 
-            // ListBoxVideos
+            // ListBoxFiles
             // 
-            ListBoxVideos.FormattingEnabled = true;
-            ListBoxVideos.Location = new Point(616, 37);
-            ListBoxVideos.Name = "ListBoxVideos";
-            ListBoxVideos.Size = new Size(244, 379);
-            ListBoxVideos.TabIndex = 10;
-            ListBoxVideos.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
+            ListBoxFiles.ContextMenuStrip = contextMenuFiles;
+            ListBoxFiles.FormattingEnabled = true;
+            ListBoxFiles.Location = new Point(616, 37);
+            ListBoxFiles.Name = "ListBoxFiles";
+            ListBoxFiles.Size = new Size(244, 379);
+            ListBoxFiles.TabIndex = 10;
+            ListBoxFiles.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
+            // 
+            // contextMenuFiles
+            // 
+            contextMenuFiles.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem });
+            contextMenuFiles.Name = "contextMenuFiles";
+            contextMenuFiles.Size = new Size(118, 26);
+            // 
+            // renameToolStripMenuItem
+            // 
+            renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            renameToolStripMenuItem.Size = new Size(117, 22);
+            renameToolStripMenuItem.Text = "Rename";
+            renameToolStripMenuItem.Click += renameToolStripMenuItem_Click;
             // 
             // BtnSelectFolder
             // 
@@ -171,7 +188,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(888, 443);
             Controls.Add(BtnSelectFolder);
-            Controls.Add(ListBoxVideos);
+            Controls.Add(ListBoxFiles);
             Controls.Add(PreviousFile);
             Controls.Add(NextFile);
             Controls.Add(VolumeLbl);
@@ -188,6 +205,7 @@
             ((System.ComponentModel.ISupportInitialize)VideoView).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).EndInit();
+            contextMenuFiles.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -204,7 +222,9 @@
         private Label VolumeLbl;
         private Button NextFile;
         private Button PreviousFile;
-        private ListBox ListBoxVideos;
+        private ListBox ListBoxFiles;
         private Button BtnSelectFolder;
+        private ContextMenuStrip contextMenuFiles;
+        private ToolStripMenuItem renameToolStripMenuItem;
     }
 }

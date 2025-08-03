@@ -1,4 +1,5 @@
 ﻿using FileCatalogBusinesLogic.Interfaces;
+using Microsoft.VisualBasic;
 
 namespace FileCatalogBusinesLogic.Services
 {
@@ -13,9 +14,12 @@ namespace FileCatalogBusinesLogic.Services
             _files = _directory.GetFiles();
         }
 
-        public void ChangeDirectory(string directoryName)
+        public void DirectoryReshafle(string directoryName)
         {
-            _directory = new DirectoryInfo(directoryName);
+            if (Directory.Exists(directoryName) && directoryName != _directory.FullName)
+            {
+                _directory = new DirectoryInfo(directoryName);
+            }
             _files = _directory.GetFiles();
         }
 
@@ -39,6 +43,25 @@ namespace FileCatalogBusinesLogic.Services
             {
                 string[] fileList = ["No files in directory"];
                 return fileList;
+            }
+        }
+
+        public int GetFileIndex(string file)
+        {
+            if (_files.Length > 0)
+            {
+                for (int i = 0; i < (_files.Length - 1); i++)
+                {
+                    if(_files[i].Name == file)
+                    {
+                        return i;
+                    }
+                }
+                throw new Exception();
+            }
+            else
+            {
+                throw new Exception();
             }
         }
 

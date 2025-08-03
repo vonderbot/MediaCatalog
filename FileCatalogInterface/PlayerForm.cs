@@ -40,9 +40,9 @@
             {
                 _currentIndex = newIndex;
             }
-            ListBoxVideos.Items.Clear();
-            ListBoxVideos.Items.AddRange(_fileService.GetFileNames());
-            ListBoxVideos.SelectedIndex = _currentIndex;
+            ListBoxFiles.Items.Clear();
+            ListBoxFiles.Items.AddRange(_fileService.GetFileNames());
+            ListBoxFiles.SelectedIndex = _currentIndex;
             positionTimer.Start();
         }
 
@@ -61,17 +61,17 @@
 
         private void ChangeIndex(int indexChange)
         {
-            if (_currentIndex + indexChange >= 0 && _currentIndex + indexChange < ListBoxVideos.Items.Count)
+            if (_currentIndex + indexChange >= 0 && _currentIndex + indexChange < ListBoxFiles.Items.Count)
             {
                 _currentIndex = _currentIndex + indexChange;
             }
             else if (_currentIndex + indexChange < 0)
             {
-                _currentIndex = ListBoxVideos.Items.Count + _currentIndex + indexChange;
+                _currentIndex = ListBoxFiles.Items.Count + _currentIndex + indexChange;
             }
-            else if (_currentIndex + indexChange >= ListBoxVideos.Items.Count)
+            else if (_currentIndex + indexChange >= ListBoxFiles.Items.Count)
             {
-                _currentIndex = _currentIndex + indexChange - ListBoxVideos.Items.Count;
+                _currentIndex = _currentIndex + indexChange - ListBoxFiles.Items.Count;
             }
         }
 
@@ -171,19 +171,19 @@
         private void NextFile_Click(object sender, EventArgs e)
         {
             ChangeIndex(1);
-            ListBoxVideos.SelectedIndex = _currentIndex;
+            ListBoxFiles.SelectedIndex = _currentIndex;
         }
 
         private void PreviousFile_Click(object sender, EventArgs e)
         {
             ChangeIndex(-1);
-            ListBoxVideos.SelectedIndex = _currentIndex;
+            ListBoxFiles.SelectedIndex = _currentIndex;
         }
 
         private void ListBoxVideos_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ChangeIndex(ListBoxVideos.SelectedIndex - _currentIndex);
-            PlayVideo(ListBoxVideos.SelectedIndex);
+            ChangeIndex(ListBoxFiles.SelectedIndex - _currentIndex);
+            PlayVideo(ListBoxFiles.SelectedIndex);
         }
 
         private void BtnSelectFolder_Click(object sender, EventArgs e)
@@ -193,12 +193,40 @@
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _fileService.ChangeDirectory(dialog.SelectedPath);
+                _fileService.DirectoryReshafle(dialog.SelectedPath);
                 _settingsService.ChangeDirectoryPath(dialog.SelectedPath);
                 VideoPlayerReload(0);
+            }
+        }
 
-                //SaveSettings();
-                //LoadVideoFiles(dialog.SelectedPath); // Обнови список видео
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ListBoxFiles.SelectedItem == null) return;
+
+            var selectedFile = ListBoxFiles.SelectedItem.ToString();
+            var currentPath = Path.Combine(_fileService.GetDirectory(), selectedFile);
+            string? newName = Prompt.ShowDialog("Новое имя файла:", "Переименование", selectedFile);
+            if (!string.IsNullOrWhiteSpace(newName))
+            {
+                var newPath = Path.Combine(_fileService.GetDirectory(), newName);
+                try
+                {
+                    bool isSameFile = new Uri(_mediaPlayer.Media?.Mrl ?? "").LocalPath == currentPath;
+                    bool isPlaying = _mediaPlayer.IsPlaying || _mediaPlayer.State == VLCState.Paused;
+                    if (isSameFile && isPlaying)
+                    {
+                        MessageBox.Show("Невозможно переименовать файл, который воспроизводится. Остановите воспроизведение.");
+                        return;
+                    }
+                    File.Move(currentPath, newPath);
+                    _fileService.DirectoryReshafle(_fileService.GetDirectory());
+                    _currentIndex = _fileService.GetFileIndex(newName);
+                    VideoPlayerReload(_currentIndex);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при переименовании файла:\n{ex.Message}");
+                }
             }
         }
     }
