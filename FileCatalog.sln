@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogInterface", "Fil
 		{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D} = {57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogBusinesLogic", "FileCatalogTestLib\FileCatalogBusinesLogic.csproj", "{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogBusinesLogic", "FileCatalogBusinesLogic\FileCatalogBusinesLogic.csproj", "{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
