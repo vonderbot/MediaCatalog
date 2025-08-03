@@ -2,17 +2,17 @@
 {
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
-    using FileCatalogBusinesLogic.Services;
+    using FileCatalogBusinesLogic.Interfaces;
 
     public partial class PlayerForm : Form
     {
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
-        private readonly FileService _videoControl;
+        private readonly IFileService _videoControl;
         private bool _isSeeking;
         private int _currentIndex;
 
-        public PlayerForm(FileService newController)
+        public PlayerForm(IFileService newController)
         {
             InitializeComponent();
             Core.Initialize(); // important

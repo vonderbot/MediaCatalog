@@ -1,6 +1,6 @@
 ﻿namespace FileCatalogBusinesLogic.Interfaces
 {
-    internal interface IFileService
+    public interface IFileService
     {
         public string[] GetFileNames();
 
