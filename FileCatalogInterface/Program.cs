@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Configuration;
-using FileCatalogTestLib;
+﻿using Microsoft.Extensions.Configuration;
+using FileCatalogBusinesLogic.Services;
 
 namespace FileCatalogInterface
 {
@@ -40,8 +40,8 @@ namespace FileCatalogInterface
                 ApplicationConfiguration.Initialize();
 
                 // 6) Run the form
-                var controller = new VideoController(videoDir);
-                Application.Run(new Form1(controller));
+                var controller = new FileService(videoDir);
+                Application.Run(new PlayerForm(controller));
             }
             catch (FileNotFoundException ex)
             {

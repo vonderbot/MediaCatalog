@@ -1,0 +1,177 @@
+﻿namespace FileCatalogInterface
+{
+    using LibVLCSharp.Shared;
+    using LibVLCSharp.WinForms;
+    using FileCatalogBusinesLogic.Services;
+
+    public partial class PlayerForm : Form
+    {
+        private readonly LibVLC _libVlc;
+        private readonly MediaPlayer _mediaPlayer;
+        private readonly FileService _videoControl;
+        private bool _isSeeking;
+        private int _currentIndex;
+
+        public PlayerForm(FileService newController)
+        {
+            InitializeComponent();
+            Core.Initialize(); // important
+
+            _libVlc = new LibVLC();
+            _mediaPlayer = new MediaPlayer(_libVlc);
+            _videoControl = newController;
+            _isSeeking = false;
+            _currentIndex = 0;
+        }
+
+        private void PlayerForm_Load(object sender, EventArgs e)
+        {
+            VideoView.MediaPlayer = _mediaPlayer;
+            ChangeVolume(TrackBarVolume);
+            ListBoxVideos.Items.Clear();
+            ListBoxVideos.Items.AddRange(_videoControl.GetFileNames());
+            ListBoxVideos.SelectedIndex = _currentIndex;
+            positionTimer.Start();
+        }
+
+        private void PlayVideo(int fileIndex)
+        {
+            var media = new Media(_libVlc, _videoControl.GetFile(fileIndex), FromType.FromPath);
+            _mediaPlayer.Play(media);
+            positionTimer.Start();
+        }
+
+        private void ChangeVolume(TrackBar trackBar)
+        {
+            _mediaPlayer.Volume = trackBar.Value;
+            VolumeLbl.Text = $@"Volume: {trackBar.Value}%";
+        }
+
+        private void ChangeIndex(int indexChange)
+        {
+            if (_currentIndex + indexChange >= 0 && _currentIndex + indexChange < ListBoxVideos.Items.Count)
+            {
+                _currentIndex = _currentIndex + indexChange;
+            }
+            else if (_currentIndex + indexChange < 0)
+            {
+                _currentIndex = ListBoxVideos.Items.Count + _currentIndex + indexChange;
+            }
+            else if (_currentIndex + indexChange >= ListBoxVideos.Items.Count)
+            {
+                _currentIndex = _currentIndex + indexChange - ListBoxVideos.Items.Count;
+            }
+        }
+
+        private static string FormatTime(long milliseconds)
+        {
+            var ts = TimeSpan.FromMilliseconds(milliseconds);
+            return $"{ts.Minutes:D2}:{ts.Seconds:D2}";
+        }
+
+        private void BtnPause_Click(object sender, EventArgs e)
+        {
+            _mediaPlayer?.Pause();
+            BtnPause.Text = BtnPause.Text == "Pause" ? "Play" : "Pause";
+        }
+
+        private void BtnStop_Click(object sender, EventArgs e)
+        {
+            _mediaPlayer?.Stop();
+            PositionLbl.Text = @"00:00 / 00:00";
+        }
+
+        private void PositionTimer_Tick(object sender, EventArgs e)
+        {
+            if (!_mediaPlayer.IsPlaying || _isSeeking)
+            {
+                return;
+            }
+
+            long current = _mediaPlayer.Time;        // current position in MS
+            long total = _mediaPlayer.Length;        // total duration in ms
+
+            PositionLbl.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
+            TrackBarSeek.Value = (int)(current * 1000 / total);
+        }
+
+        private void TrackBarSeek_Scroll(object sender, EventArgs e)
+        {
+            if (_mediaPlayer.Length <= 0) return;
+
+            _mediaPlayer.Time = TrackBarSeek.Value * _mediaPlayer.Length / 1000;
+        }
+
+        private void TrackBarSeek_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (_mediaPlayer.Length <= 0)
+            {
+                return;
+            }
+
+            TrackBar tb = (TrackBar)sender;
+            _mediaPlayer.Time = Math.Max(tb.Minimum, 
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+                * _mediaPlayer.Length / tb.Maximum;
+            _isSeeking = false;
+        }
+
+        private void TrackBarSeek_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_mediaPlayer.Length <= 0)
+            {
+                return;
+            }
+
+            _isSeeking = true;
+            TrackBar tb = (TrackBar)sender;
+            _mediaPlayer.Time = Math.Max(tb.Minimum, 
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+                * _mediaPlayer.Length / tb.Maximum;
+        }
+
+        private void TrackBarVolume_Scroll(object sender, EventArgs e)
+        {
+            ChangeVolume(TrackBarVolume);
+        }
+
+        private void TrackBarMovement(object sender, MouseEventArgs e)
+        {
+            if (_mediaPlayer.Length <= 0)
+            {
+                return;
+            }
+
+            TrackBar tb = (TrackBar)sender;
+            _mediaPlayer.Time = Math.Max(tb.Minimum, 
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+                * _mediaPlayer.Length / tb.Maximum;
+            _isSeeking = false;
+        }
+
+        private void TrackBarVolume_MouseDown(object sender, MouseEventArgs e)
+        {
+            TrackBar tb = (TrackBar)sender;
+            tb.Value = Math.Max(tb.Minimum, Math.Min(tb.Maximum, tb.Maximum - (int)((double)e.Y / tb.Height * tb.Maximum)));
+            ChangeVolume(tb);
+        }
+
+        private void NextFile_Click(object sender, EventArgs e)
+        {
+            ChangeIndex(1);
+            ListBoxVideos.SelectedIndex = _currentIndex;
+        }
+
+        private void PreviousFile_Click(object sender, EventArgs e)
+        {
+            ChangeIndex(-1);
+            ListBoxVideos.SelectedIndex = _currentIndex;
+        }
+
+        private void ListBoxVideos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChangeIndex(ListBoxVideos.SelectedIndex - _currentIndex);
+            PlayVideo(ListBoxVideos.SelectedIndex);
+        }
+    }
+}
