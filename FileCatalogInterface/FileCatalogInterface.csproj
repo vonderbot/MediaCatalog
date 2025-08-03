@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileCatalogTestLib\FileCatalogTestLib.csproj" />
+    <ProjectReference Include="..\FileCatalogTestLib\FileCatalogBusinesLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>
