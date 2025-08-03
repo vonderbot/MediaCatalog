@@ -9,6 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogInterface", "Fil
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogBusinesLogic", "FileCatalogBusinesLogic\FileCatalogBusinesLogic.csproj", "{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB} = {D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCatalogViewModels", "FileCatalogViewModels\FileCatalogViewModels.csproj", "{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +29,10 @@ Global
 		{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57DA98E5-8F74-4D7C-8F3E-9A5E6D3ED35D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6548FFD-BF3A-40DF-BFE1-F506F6C40DBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -40,6 +40,7 @@
             NextFile = new Button();
             PreviousFile = new Button();
             ListBoxVideos = new ListBox();
+            BtnSelectFolder = new Button();
             ((System.ComponentModel.ISupportInitialize)VideoView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).BeginInit();
@@ -148,17 +149,28 @@
             // ListBoxVideos
             // 
             ListBoxVideos.FormattingEnabled = true;
-            ListBoxVideos.Location = new Point(630, 35);
+            ListBoxVideos.Location = new Point(616, 37);
             ListBoxVideos.Name = "ListBoxVideos";
             ListBoxVideos.Size = new Size(244, 379);
             ListBoxVideos.TabIndex = 10;
             ListBoxVideos.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
+            // 
+            // BtnSelectFolder
+            // 
+            BtnSelectFolder.Location = new Point(616, 8);
+            BtnSelectFolder.Name = "BtnSelectFolder";
+            BtnSelectFolder.Size = new Size(84, 23);
+            BtnSelectFolder.TabIndex = 11;
+            BtnSelectFolder.Text = "SelectFolder";
+            BtnSelectFolder.UseVisualStyleBackColor = true;
+            BtnSelectFolder.Click += BtnSelectFolder_Click;
             // 
             // PlayerForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(888, 443);
+            Controls.Add(BtnSelectFolder);
             Controls.Add(ListBoxVideos);
             Controls.Add(PreviousFile);
             Controls.Add(NextFile);
@@ -193,5 +205,6 @@
         private Button NextFile;
         private Button PreviousFile;
         private ListBox ListBoxVideos;
+        private Button BtnSelectFolder;
     }
 }

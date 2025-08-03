@@ -41,7 +41,8 @@ namespace FileCatalogInterface
 
                 // 6) Run the form
                 var controller = new FileService(videoDir);
-                Application.Run(new PlayerForm(controller));
+                var settingService = new AppSettingsService(VideoSettingsDirectoryKey, AppSettings, configuration);
+                Application.Run(new PlayerForm(controller, settingService));
             }
             catch (FileNotFoundException ex)
             {

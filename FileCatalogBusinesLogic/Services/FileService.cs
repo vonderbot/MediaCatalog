@@ -4,13 +4,24 @@ namespace FileCatalogBusinesLogic.Services
 {
     public class FileService : IFileService
     {
-        private readonly DirectoryInfo _directory;
-        private readonly FileInfo[] _files;
+        private DirectoryInfo _directory;
+        private FileInfo[] _files;
 
         public FileService(string directoryName)
         {
             _directory = new DirectoryInfo(directoryName);
             _files = _directory.GetFiles();
+        }
+
+        public void ChangeDirectory(string directoryName)
+        {
+            _directory = new DirectoryInfo(directoryName);
+            _files = _directory.GetFiles();
+        }
+
+        public string GetDirectory()
+        {
+            return _directory.FullName;
         }
 
         public string[] GetFileNames()

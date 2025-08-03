@@ -1,25 +1,28 @@
 ﻿namespace FileCatalogInterface
 {
+    using FileCatalogBusinesLogic.Interfaces;
+    using FileCatalogBusinesLogic.Services;
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
-    using FileCatalogBusinesLogic.Interfaces;
 
     public partial class PlayerForm : Form
     {
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
-        private readonly IFileService _videoControl;
+        private readonly IFileService _fileService;
+        private readonly ISettingsService _settingsService;
         private bool _isSeeking;
         private int _currentIndex;
 
-        public PlayerForm(IFileService newController)
+        public PlayerForm(IFileService fileService, ISettingsService settingsService)
         {
             InitializeComponent();
             Core.Initialize(); // important
 
             _libVlc = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVlc);
-            _videoControl = newController;
+            _fileService = fileService;
+            _settingsService = settingsService;
             _isSeeking = false;
             _currentIndex = 0;
         }
@@ -28,15 +31,24 @@
         {
             VideoView.MediaPlayer = _mediaPlayer;
             ChangeVolume(TrackBarVolume);
+            VideoPlayerReload(_currentIndex);
+        }
+
+        private void VideoPlayerReload(int newIndex)
+        {
+            if (newIndex != _currentIndex)
+            {
+                _currentIndex = newIndex;
+            }
             ListBoxVideos.Items.Clear();
-            ListBoxVideos.Items.AddRange(_videoControl.GetFileNames());
+            ListBoxVideos.Items.AddRange(_fileService.GetFileNames());
             ListBoxVideos.SelectedIndex = _currentIndex;
             positionTimer.Start();
         }
 
         private void PlayVideo(int fileIndex)
         {
-            var media = new Media(_libVlc, _videoControl.GetFile(fileIndex), FromType.FromPath);
+            var media = new Media(_libVlc, _fileService.GetFile(fileIndex), FromType.FromPath);
             _mediaPlayer.Play(media);
             positionTimer.Start();
         }
@@ -110,8 +122,8 @@
             }
 
             TrackBar tb = (TrackBar)sender;
-            _mediaPlayer.Time = Math.Max(tb.Minimum, 
-                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+            _mediaPlayer.Time = Math.Max(tb.Minimum,
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum)))
                 * _mediaPlayer.Length / tb.Maximum;
             _isSeeking = false;
         }
@@ -125,8 +137,8 @@
 
             _isSeeking = true;
             TrackBar tb = (TrackBar)sender;
-            _mediaPlayer.Time = Math.Max(tb.Minimum, 
-                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+            _mediaPlayer.Time = Math.Max(tb.Minimum,
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum)))
                 * _mediaPlayer.Length / tb.Maximum;
         }
 
@@ -143,8 +155,8 @@
             }
 
             TrackBar tb = (TrackBar)sender;
-            _mediaPlayer.Time = Math.Max(tb.Minimum, 
-                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum))) 
+            _mediaPlayer.Time = Math.Max(tb.Minimum,
+                Math.Min(tb.Maximum, (int)((double)e.X / tb.Width * tb.Maximum)))
                 * _mediaPlayer.Length / tb.Maximum;
             _isSeeking = false;
         }
@@ -172,6 +184,22 @@
         {
             ChangeIndex(ListBoxVideos.SelectedIndex - _currentIndex);
             PlayVideo(ListBoxVideos.SelectedIndex);
+        }
+
+        private void BtnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.SelectedPath = _fileService.GetDirectory();
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                _fileService.ChangeDirectory(dialog.SelectedPath);
+                _settingsService.ChangeDirectoryPath(dialog.SelectedPath);
+                VideoPlayerReload(0);
+
+                //SaveSettings();
+                //LoadVideoFiles(dialog.SelectedPath); // Обнови список видео
+            }
         }
     }
 }
