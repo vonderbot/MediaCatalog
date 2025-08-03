@@ -6,42 +6,61 @@ namespace FileCatalogInterface
     internal static class Program
     {
         private const string VideoSettingsDirectoryKey = "VideoSettings:Directory";
+        private const string SettingsFolderPath = "Settings/";
         private const string AppSettings = "appsettings.json";
+        private const string UserSettings = "UserSettings.json";
 
         [STAThread]
         private static void Main()
         {
             try
             {
-                // 1) Check for a configuration file
-                var configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSettings);
+                // Check for a configuration file
+                var configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFolderPath + AppSettings);
                 if (!File.Exists(configFile))
                     throw new FileNotFoundException("Configuration file not found.", configFile);
 
-                // 2) Upload the configuration
+                // Check for a user configuration file
+                string appFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "FileCatalogApp");
+                string settingsPath = Path.Combine(appFolder, UserSettings);
+                if (!Directory.Exists(appFolder))
+                    Directory.CreateDirectory(appFolder);
+                if (!File.Exists(settingsPath))
+                {
+                    var originalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFolderPath + UserSettings);
+                    if (File.Exists(originalPath))
+                        File.Copy(originalPath, settingsPath);
+                    else
+                        File.WriteAllText(settingsPath, "{}"); // empty JSON
+                }
+
+                // Upload the configuration
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                    .AddJsonFile(AppSettings, optional: false, reloadOnChange: true)
+                    .AddJsonFile(SettingsFolderPath + AppSettings, optional: false, reloadOnChange: true)
+                    .AddJsonFile(settingsPath, optional: false, reloadOnChange: true)
                     .Build();
 
-                // 3) Check for the key
+                // Check for the key
                 var section = configuration.GetSection(VideoSettingsDirectoryKey);
                 if (!section.Exists() || string.IsNullOrWhiteSpace(section.Value))
                     throw new KeyNotFoundException(
                         $"There is a missing or empty setting in the configuration'{VideoSettingsDirectoryKey}'.");
 
-                // 4) Check that the directory exists
+                // Check that the directory exists
                 var videoDir = section.Value!;
                 if (!Directory.Exists(videoDir))
                     throw new DirectoryNotFoundException(
                         $"The directory specified in the configuration was not found: {videoDir}");
 
-                // 5) Initialize WinForms
+                // Initialize WinForms
                 ApplicationConfiguration.Initialize();
 
-                // 6) Run the form
+                // Run the form
                 var controller = new FileService(videoDir);
-                var settingService = new AppSettingsService(VideoSettingsDirectoryKey, AppSettings, configuration);
+                var settingService = new UserSettingsService(settingsPath);
                 Application.Run(new PlayerForm(controller, settingService));
             }
             catch (FileNotFoundException ex)

@@ -1,6 +1,6 @@
 ﻿namespace FileCatalogBusinesLogic.Interfaces
 {
-    public interface ISettingsService
+    public interface IUserSettingsService
     {
         //VideoSettings GetVideoSettings();
 

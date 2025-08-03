@@ -10,11 +10,11 @@
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
         private readonly IFileService _fileService;
-        private readonly ISettingsService _settingsService;
+        private readonly IUserSettingsService _settingsService;
         private bool _isSeeking;
         private int _currentIndex;
 
-        public PlayerForm(IFileService fileService, ISettingsService settingsService)
+        public PlayerForm(IFileService fileService, IUserSettingsService settingsService)
         {
             InitializeComponent();
             Core.Initialize(); // important
