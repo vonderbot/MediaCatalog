@@ -83,13 +83,17 @@
 
         private void BtnPause_Click(object sender, EventArgs e)
         {
-            _mediaPlayer?.Pause();
-            BtnPause.Text = BtnPause.Text == "Pause" ? "Play" : "Pause";
+            if (_mediaPlayer.State != VLCState.Stopped)
+            {
+                _mediaPlayer?.Pause();
+                BtnPause.Text = BtnPause.Text == "Pause" ? "Play" : "Pause";
+            }
         }
 
         private void BtnStop_Click(object sender, EventArgs e)
         {
             _mediaPlayer?.Stop();
+            BtnPause.Text = "Pause";
             PositionLbl.Text = @"00:00 / 00:00";
         }
 
@@ -228,6 +232,11 @@
                     MessageBox.Show($"Ошибка при переименовании файла:\n{ex.Message}");
                 }
             }
+        }
+
+        private void VolumeLbl_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

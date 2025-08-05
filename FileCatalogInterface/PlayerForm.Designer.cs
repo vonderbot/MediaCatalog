@@ -51,11 +51,12 @@
             // 
             // VideoView
             // 
+            VideoView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             VideoView.BackColor = Color.Black;
             VideoView.Location = new Point(12, 37);
             VideoView.MediaPlayer = null;
             VideoView.Name = "VideoView";
-            VideoView.Size = new Size(561, 377);
+            VideoView.Size = new Size(553, 379);
             VideoView.TabIndex = 0;
             VideoView.Text = "videoView1";
             // 
@@ -63,7 +64,7 @@
             // 
             BtnPause.Location = new Point(12, 8);
             BtnPause.Name = "BtnPause";
-            BtnPause.Size = new Size(75, 23);
+            BtnPause.Size = new Size(73, 25);
             BtnPause.TabIndex = 2;
             BtnPause.Text = "Pause";
             BtnPause.UseVisualStyleBackColor = true;
@@ -73,7 +74,7 @@
             // 
             BtnStop.Location = new Point(93, 8);
             BtnStop.Name = "BtnStop";
-            BtnStop.Size = new Size(75, 23);
+            BtnStop.Size = new Size(73, 25);
             BtnStop.TabIndex = 3;
             BtnStop.Text = "Stop";
             BtnStop.UseVisualStyleBackColor = true;
@@ -81,8 +82,9 @@
             // 
             // PositionLbl
             // 
+            PositionLbl.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PositionLbl.AutoSize = true;
-            PositionLbl.Location = new Point(495, 12);
+            PositionLbl.Location = new Point(493, 13);
             PositionLbl.Name = "PositionLbl";
             PositionLbl.Size = new Size(72, 15);
             PositionLbl.TabIndex = 4;
@@ -94,12 +96,13 @@
             // 
             // TrackBarSeek
             // 
+            TrackBarSeek.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             TrackBarSeek.AutoSize = false;
-            TrackBarSeek.Location = new Point(12, 417);
+            TrackBarSeek.Location = new Point(12, 419);
             TrackBarSeek.Margin = new Padding(0);
             TrackBarSeek.Maximum = 1000;
             TrackBarSeek.Name = "TrackBarSeek";
-            TrackBarSeek.Size = new Size(561, 26);
+            TrackBarSeek.Size = new Size(553, 29);
             TrackBarSeek.TabIndex = 5;
             TrackBarSeek.TickFrequency = 0;
             TrackBarSeek.TickStyle = TickStyle.None;
@@ -109,11 +112,12 @@
             // 
             // TrackBarVolume
             // 
-            TrackBarVolume.Location = new Point(579, 323);
+            TrackBarVolume.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            TrackBarVolume.Location = new Point(571, 323);
             TrackBarVolume.Maximum = 100;
             TrackBarVolume.Name = "TrackBarVolume";
             TrackBarVolume.Orientation = Orientation.Vertical;
-            TrackBarVolume.Size = new Size(45, 91);
+            TrackBarVolume.Size = new Size(45, 93);
             TrackBarVolume.TabIndex = 6;
             TrackBarVolume.TickFrequency = 10;
             TrackBarVolume.Value = 50;
@@ -122,20 +126,22 @@
             // 
             // VolumeLbl
             // 
+            VolumeLbl.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             VolumeLbl.AutoSize = true;
-            VolumeLbl.Location = new Point(414, 12);
+            VolumeLbl.Location = new Point(412, 13);
             VolumeLbl.Name = "VolumeLbl";
             VolumeLbl.Size = new Size(75, 15);
             VolumeLbl.TabIndex = 7;
             VolumeLbl.Text = "Volume: 50%";
+            VolumeLbl.Click += VolumeLbl_Click;
             // 
             // NextFile
             // 
             NextFile.Location = new Point(294, 8);
             NextFile.Name = "NextFile";
-            NextFile.Size = new Size(114, 23);
+            NextFile.Size = new Size(112, 25);
             NextFile.TabIndex = 8;
-            NextFile.Text = "NextFile";
+            NextFile.Text = "Next file";
             NextFile.UseVisualStyleBackColor = true;
             NextFile.Click += NextFile_Click;
             // 
@@ -143,19 +149,20 @@
             // 
             PreviousFile.Location = new Point(174, 8);
             PreviousFile.Name = "PreviousFile";
-            PreviousFile.Size = new Size(114, 23);
+            PreviousFile.Size = new Size(112, 25);
             PreviousFile.TabIndex = 9;
-            PreviousFile.Text = "PreviousFile";
+            PreviousFile.Text = "Previous file";
             PreviousFile.UseVisualStyleBackColor = true;
             PreviousFile.Click += PreviousFile_Click;
             // 
             // ListBoxFiles
             // 
+            ListBoxFiles.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             ListBoxFiles.ContextMenuStrip = contextMenuFiles;
             ListBoxFiles.FormattingEnabled = true;
-            ListBoxFiles.Location = new Point(616, 37);
+            ListBoxFiles.Location = new Point(604, 37);
             ListBoxFiles.Name = "ListBoxFiles";
-            ListBoxFiles.Size = new Size(244, 379);
+            ListBoxFiles.Size = new Size(354, 379);
             ListBoxFiles.TabIndex = 10;
             ListBoxFiles.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
             // 
@@ -174,11 +181,12 @@
             // 
             // BtnSelectFolder
             // 
-            BtnSelectFolder.Location = new Point(616, 8);
+            BtnSelectFolder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            BtnSelectFolder.Location = new Point(604, 9);
             BtnSelectFolder.Name = "BtnSelectFolder";
             BtnSelectFolder.Size = new Size(84, 23);
             BtnSelectFolder.TabIndex = 11;
-            BtnSelectFolder.Text = "SelectFolder";
+            BtnSelectFolder.Text = "Select folder";
             BtnSelectFolder.UseVisualStyleBackColor = true;
             BtnSelectFolder.Click += BtnSelectFolder_Click;
             // 
@@ -186,7 +194,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(888, 443);
+            ClientSize = new Size(970, 445);
             Controls.Add(BtnSelectFolder);
             Controls.Add(ListBoxFiles);
             Controls.Add(PreviousFile);
@@ -198,7 +206,6 @@
             Controls.Add(BtnStop);
             Controls.Add(BtnPause);
             Controls.Add(VideoView);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
             Name = "PlayerForm";
             Text = "File catalog";
             Load += PlayerForm_Load;
