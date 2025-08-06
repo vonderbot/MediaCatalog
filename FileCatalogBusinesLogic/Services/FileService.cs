@@ -46,6 +46,11 @@ namespace FileCatalogBusinesLogic.Services
             }
         }
 
+        public FileInfo[] GetFiles()
+        {
+            return _files;
+        }
+
         public int GetFileIndex(string file)
         {
             if (_files.Length > 0)

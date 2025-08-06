@@ -4,6 +4,8 @@
     {
         public void DirectoryReshafle(string directoryName);
 
+        public FileInfo[] GetFiles();
+
         public string GetDirectory();
 
         public string[] GetFileNames();

@@ -43,6 +43,10 @@
             contextMenuFiles = new ContextMenuStrip(components);
             renameToolStripMenuItem = new ToolStripMenuItem();
             BtnSelectFolder = new Button();
+            listViewFiles = new ListView();
+            FileName = new ColumnHeader();
+            Format = new ColumnHeader();
+            CreationDate = new ColumnHeader();
             ((System.ComponentModel.ISupportInitialize)VideoView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).BeginInit();
@@ -133,7 +137,6 @@
             VolumeLbl.Size = new Size(75, 15);
             VolumeLbl.TabIndex = 7;
             VolumeLbl.Text = "Volume: 50%";
-            VolumeLbl.Click += VolumeLbl_Click;
             // 
             // NextFile
             // 
@@ -162,7 +165,7 @@
             ListBoxFiles.FormattingEnabled = true;
             ListBoxFiles.Location = new Point(604, 37);
             ListBoxFiles.Name = "ListBoxFiles";
-            ListBoxFiles.Size = new Size(354, 379);
+            ListBoxFiles.Size = new Size(174, 379);
             ListBoxFiles.TabIndex = 10;
             ListBoxFiles.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
             // 
@@ -190,11 +193,42 @@
             BtnSelectFolder.UseVisualStyleBackColor = true;
             BtnSelectFolder.Click += BtnSelectFolder_Click;
             // 
+            // listViewFiles
+            // 
+            listViewFiles.Columns.AddRange(new ColumnHeader[] { FileName, Format, CreationDate });
+            listViewFiles.FullRowSelect = true;
+            listViewFiles.GridLines = true;
+            listViewFiles.Location = new Point(604, 54);
+            listViewFiles.MultiSelect = false;
+            listViewFiles.Name = "listViewFiles";
+            listViewFiles.Size = new Size(354, 379);
+            listViewFiles.TabIndex = 12;
+            listViewFiles.UseCompatibleStateImageBehavior = false;
+            listViewFiles.View = View.Details;
+            listViewFiles.ColumnClick += listViewFiles_ColumnClick;
+            listViewFiles.SelectedIndexChanged += listViewFiles_SelectedIndexChanged;
+            // 
+            // FileName
+            // 
+            FileName.Text = "File name";
+            FileName.Width = 200;
+            // 
+            // Format
+            // 
+            Format.Text = "Format";
+            Format.Width = 100;
+            // 
+            // CreationDate
+            // 
+            CreationDate.Text = "Creation date";
+            CreationDate.Width = 150;
+            // 
             // PlayerForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(970, 445);
+            Controls.Add(listViewFiles);
             Controls.Add(BtnSelectFolder);
             Controls.Add(ListBoxFiles);
             Controls.Add(PreviousFile);
@@ -233,5 +267,9 @@
         private Button BtnSelectFolder;
         private ContextMenuStrip contextMenuFiles;
         private ToolStripMenuItem renameToolStripMenuItem;
+        private ListView listViewFiles;
+        private ColumnHeader FileName;
+        private ColumnHeader Format;
+        private ColumnHeader CreationDate;
     }
 }

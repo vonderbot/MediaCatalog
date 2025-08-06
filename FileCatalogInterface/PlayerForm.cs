@@ -13,6 +13,8 @@
         private readonly IUserSettingsService _settingsService;
         private bool _isSeeking;
         private int _currentIndex;
+        private int _sortColumn;
+        private SortOrder _sortOrder;
 
         public PlayerForm(IFileService fileService, IUserSettingsService settingsService)
         {
@@ -25,6 +27,8 @@
             _settingsService = settingsService;
             _isSeeking = false;
             _currentIndex = 0;
+            _sortColumn = -1;
+            _sortOrder = SortOrder.Ascending;
         }
 
         private void PlayerForm_Load(object sender, EventArgs e)
@@ -43,7 +47,24 @@
             ListBoxFiles.Items.Clear();
             ListBoxFiles.Items.AddRange(_fileService.GetFileNames());
             ListBoxFiles.SelectedIndex = _currentIndex;
+
+            LoadFilesToListView();
+
             positionTimer.Start();
+        }
+
+        private void LoadFilesToListView()
+        {
+            listViewFiles.Items.Clear();
+
+            foreach (var fileInfo in _fileService.GetFiles())
+            {
+                var item = new ListViewItem(Path.GetFileNameWithoutExtension(fileInfo.Name));
+                item.SubItems.Add(fileInfo.Extension);
+                item.SubItems.Add(fileInfo.CreationTime.ToString("dd.MM.yyyy"));
+                item.Tag = fileInfo; // сохраняем FileInfo для дальнейшей работы (переименование, удаление, сортировка)
+                listViewFiles.Items.Add(item);
+            }
         }
 
         private void PlayVideo(int fileIndex)
@@ -175,13 +196,35 @@
         private void NextFile_Click(object sender, EventArgs e)
         {
             ChangeIndex(1);
-            ListBoxFiles.SelectedIndex = _currentIndex;
+
+            listViewFiles.SelectedItems.Clear();
+
+            if (_currentIndex >= 0 && _currentIndex < listViewFiles.Items.Count)
+            {
+                var item = listViewFiles.Items[_currentIndex];
+                item.Selected = true;
+                item.Focused = true;
+                item.EnsureVisible();
+                listViewFiles.Focus();
+            }
         }
 
         private void PreviousFile_Click(object sender, EventArgs e)
         {
             ChangeIndex(-1);
-            ListBoxFiles.SelectedIndex = _currentIndex;
+
+            // Убираем текущее выделение
+            listViewFiles.SelectedItems.Clear();
+
+            // Проверяем корректность индекса и выделяем нужный элемент
+            if (_currentIndex >= 0 && _currentIndex < listViewFiles.Items.Count)
+            {
+                var item = listViewFiles.Items[_currentIndex];
+                item.Selected = true;
+                item.Focused = true;
+                item.EnsureVisible();
+                listViewFiles.Focus();
+            }
         }
 
         private void ListBoxVideos_SelectedIndexChanged(object sender, EventArgs e)
@@ -203,7 +246,7 @@
             }
         }
 
-        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        /*private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (ListBoxFiles.SelectedItem == null) return;
 
@@ -232,11 +275,75 @@
                     MessageBox.Show($"Ошибка при переименовании файла:\n{ex.Message}");
                 }
             }
+        }*/
+
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listViewFiles.SelectedItems.Count != 1)
+                return;
+
+            if (listViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
+                return;
+
+            var currentPath = selectedFileInfo.FullName;
+            var selectedFileName = selectedFileInfo.Name;
+            string? newName = Prompt.ShowDialog("Новое имя файла:", "Переименование", selectedFileName);
+
+            if (!string.IsNullOrWhiteSpace(newName))
+            {
+                var directory = _fileService.GetDirectory();
+                var newPath = Path.Combine(directory, newName);
+
+                try
+                {
+                    string? mediaMrl = _mediaPlayer.Media?.Mrl;
+                    string normalizedMediaPath = mediaMrl != null ? Uri.UnescapeDataString(new Uri(mediaMrl).LocalPath) : string.Empty;
+                    bool isSameFile = normalizedMediaPath == currentPath;
+
+                    bool isPlaying = _mediaPlayer.IsPlaying || _mediaPlayer.State == VLCState.Paused;
+
+                    if (isSameFile && isPlaying)
+                    {
+                        MessageBox.Show("Невозможно переименовать файл, который воспроизводится. Остановите воспроизведение.");
+                        return;
+                    }
+
+                    File.Move(currentPath, newPath);
+
+                    _fileService.DirectoryReshafle(directory);
+                    _currentIndex = _fileService.GetFileIndex(newName);
+                    VideoPlayerReload(_currentIndex);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при переименовании файла:\n{ex.Message}");
+                }
+            }
         }
 
-        private void VolumeLbl_Click(object sender, EventArgs e)
+        private void listViewFiles_ColumnClick(object sender, ColumnClickEventArgs e)
         {
+            if (e.Column == _sortColumn && _sortOrder == SortOrder.Ascending)
+                _sortOrder = SortOrder.Descending;
+            else if (e.Column == _sortColumn && _sortOrder == SortOrder.Descending)
+                _sortOrder = SortOrder.Ascending;
+            else
+            {
+                _sortColumn = e.Column;
+                _sortOrder = SortOrder.Ascending;
+            }
 
+            listViewFiles.ListViewItemSorter = new FileListViewItemComparer(e.Column, _sortOrder);
+            listViewFiles.Sort();
+        }
+
+        private void listViewFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listViewFiles.SelectedIndices.Count > 0)
+            {
+                ChangeIndex(listViewFiles.SelectedIndices[0] - _currentIndex);
+                PlayVideo(listViewFiles.SelectedIndices[0]);
+            }
         }
     }
 }
