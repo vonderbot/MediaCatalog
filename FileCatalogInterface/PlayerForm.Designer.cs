@@ -39,11 +39,10 @@
             VolumeLbl = new Label();
             NextFile = new Button();
             PreviousFile = new Button();
-            ListBoxFiles = new ListBox();
             contextMenuFiles = new ContextMenuStrip(components);
             renameToolStripMenuItem = new ToolStripMenuItem();
             BtnSelectFolder = new Button();
-            listViewFiles = new ListView();
+            ListViewFiles = new ListView();
             FileName = new ColumnHeader();
             Format = new ColumnHeader();
             CreationDate = new ColumnHeader();
@@ -158,17 +157,6 @@
             PreviousFile.UseVisualStyleBackColor = true;
             PreviousFile.Click += PreviousFile_Click;
             // 
-            // ListBoxFiles
-            // 
-            ListBoxFiles.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            ListBoxFiles.ContextMenuStrip = contextMenuFiles;
-            ListBoxFiles.FormattingEnabled = true;
-            ListBoxFiles.Location = new Point(604, 37);
-            ListBoxFiles.Name = "ListBoxFiles";
-            ListBoxFiles.Size = new Size(174, 379);
-            ListBoxFiles.TabIndex = 10;
-            ListBoxFiles.SelectedIndexChanged += ListBoxVideos_SelectedIndexChanged;
-            // 
             // contextMenuFiles
             // 
             contextMenuFiles.Items.AddRange(new ToolStripItem[] { renameToolStripMenuItem });
@@ -185,7 +173,7 @@
             // BtnSelectFolder
             // 
             BtnSelectFolder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            BtnSelectFolder.Location = new Point(604, 9);
+            BtnSelectFolder.Location = new Point(604, 10);
             BtnSelectFolder.Name = "BtnSelectFolder";
             BtnSelectFolder.Size = new Size(84, 23);
             BtnSelectFolder.TabIndex = 11;
@@ -193,20 +181,22 @@
             BtnSelectFolder.UseVisualStyleBackColor = true;
             BtnSelectFolder.Click += BtnSelectFolder_Click;
             // 
-            // listViewFiles
+            // ListViewFiles
             // 
-            listViewFiles.Columns.AddRange(new ColumnHeader[] { FileName, Format, CreationDate });
-            listViewFiles.FullRowSelect = true;
-            listViewFiles.GridLines = true;
-            listViewFiles.Location = new Point(604, 54);
-            listViewFiles.MultiSelect = false;
-            listViewFiles.Name = "listViewFiles";
-            listViewFiles.Size = new Size(354, 379);
-            listViewFiles.TabIndex = 12;
-            listViewFiles.UseCompatibleStateImageBehavior = false;
-            listViewFiles.View = View.Details;
-            listViewFiles.ColumnClick += listViewFiles_ColumnClick;
-            listViewFiles.SelectedIndexChanged += listViewFiles_SelectedIndexChanged;
+            ListViewFiles.Columns.AddRange(new ColumnHeader[] { FileName, Format, CreationDate });
+            ListViewFiles.ContextMenuStrip = contextMenuFiles;
+            ListViewFiles.FullRowSelect = true;
+            ListViewFiles.GridLines = true;
+            ListViewFiles.Location = new Point(604, 37);
+            ListViewFiles.MultiSelect = false;
+            ListViewFiles.Name = "ListViewFiles";
+            ListViewFiles.Size = new Size(453, 379);
+            ListViewFiles.TabIndex = 12;
+            ListViewFiles.UseCompatibleStateImageBehavior = false;
+            ListViewFiles.View = View.Details;
+            ListViewFiles.ColumnClick += listViewFiles_ColumnClick;
+            ListViewFiles.ItemActivate += renameToolStripMenuItem_Click;
+            ListViewFiles.SelectedIndexChanged += listViewFiles_SelectedIndexChanged;
             // 
             // FileName
             // 
@@ -227,10 +217,9 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(970, 445);
-            Controls.Add(listViewFiles);
+            ClientSize = new Size(1087, 445);
+            Controls.Add(ListViewFiles);
             Controls.Add(BtnSelectFolder);
-            Controls.Add(ListBoxFiles);
             Controls.Add(PreviousFile);
             Controls.Add(NextFile);
             Controls.Add(VolumeLbl);
@@ -263,11 +252,10 @@
         private Label VolumeLbl;
         private Button NextFile;
         private Button PreviousFile;
-        private ListBox ListBoxFiles;
         private Button BtnSelectFolder;
         private ContextMenuStrip contextMenuFiles;
         private ToolStripMenuItem renameToolStripMenuItem;
-        private ListView listViewFiles;
+        private ListView ListViewFiles;
         private ColumnHeader FileName;
         private ColumnHeader Format;
         private ColumnHeader CreationDate;

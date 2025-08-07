@@ -1,9 +1,9 @@
 ﻿namespace FileCatalogInterface
 {
     using FileCatalogBusinesLogic.Interfaces;
-    using FileCatalogBusinesLogic.Services;
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
+    using System.IO;
 
     public partial class PlayerForm : Form
     {
@@ -44,10 +44,6 @@
             {
                 _currentIndex = newIndex;
             }
-            ListBoxFiles.Items.Clear();
-            ListBoxFiles.Items.AddRange(_fileService.GetFileNames());
-            ListBoxFiles.SelectedIndex = _currentIndex;
-
             LoadFilesToListView();
 
             positionTimer.Start();
@@ -55,7 +51,7 @@
 
         private void LoadFilesToListView()
         {
-            listViewFiles.Items.Clear();
+            ListViewFiles.Items.Clear();
 
             foreach (var fileInfo in _fileService.GetFiles())
             {
@@ -63,13 +59,20 @@
                 item.SubItems.Add(fileInfo.Extension);
                 item.SubItems.Add(fileInfo.CreationTime.ToString("dd.MM.yyyy"));
                 item.Tag = fileInfo; // сохраняем FileInfo для дальнейшей работы (переименование, удаление, сортировка)
-                listViewFiles.Items.Add(item);
+                ListViewFiles.Items.Add(item);
             }
         }
 
         private void PlayVideo(int fileIndex)
         {
-            var media = new Media(_libVlc, _fileService.GetFile(fileIndex), FromType.FromPath);
+            if(fileIndex < 0 || fileIndex >= ListViewFiles.Items.Count)
+                return;
+
+            var item = ListViewFiles.Items[fileIndex];
+            if (item.Tag is not FileInfo fileInfo)
+                return;
+
+            var media = new Media(_libVlc, fileInfo.FullName, FromType.FromPath);
             _mediaPlayer.Play(media);
             positionTimer.Start();
         }
@@ -82,18 +85,19 @@
 
         private void ChangeIndex(int indexChange)
         {
-            if (_currentIndex + indexChange >= 0 && _currentIndex + indexChange < ListBoxFiles.Items.Count)
+            int itemCount = ListViewFiles.Items.Count;
+            if (itemCount == 0) return;
+
+            int newIndex = _currentIndex + indexChange;
+            if (newIndex < 0)
             {
-                _currentIndex = _currentIndex + indexChange;
+                newIndex = itemCount + (newIndex % itemCount);
             }
-            else if (_currentIndex + indexChange < 0)
+            else
             {
-                _currentIndex = ListBoxFiles.Items.Count + _currentIndex + indexChange;
+                newIndex = newIndex % itemCount;
             }
-            else if (_currentIndex + indexChange >= ListBoxFiles.Items.Count)
-            {
-                _currentIndex = _currentIndex + indexChange - ListBoxFiles.Items.Count;
-            }
+            _currentIndex = newIndex;
         }
 
         private static string FormatTime(long milliseconds)
@@ -197,15 +201,15 @@
         {
             ChangeIndex(1);
 
-            listViewFiles.SelectedItems.Clear();
+            ListViewFiles.SelectedItems.Clear();
 
-            if (_currentIndex >= 0 && _currentIndex < listViewFiles.Items.Count)
+            if (_currentIndex >= 0 && _currentIndex < ListViewFiles.Items.Count)
             {
-                var item = listViewFiles.Items[_currentIndex];
+                var item = ListViewFiles.Items[_currentIndex];
                 item.Selected = true;
                 item.Focused = true;
                 item.EnsureVisible();
-                listViewFiles.Focus();
+                ListViewFiles.Focus();
             }
         }
 
@@ -214,23 +218,17 @@
             ChangeIndex(-1);
 
             // Убираем текущее выделение
-            listViewFiles.SelectedItems.Clear();
+            ListViewFiles.SelectedItems.Clear();
 
             // Проверяем корректность индекса и выделяем нужный элемент
-            if (_currentIndex >= 0 && _currentIndex < listViewFiles.Items.Count)
+            if (_currentIndex >= 0 && _currentIndex < ListViewFiles.Items.Count)
             {
-                var item = listViewFiles.Items[_currentIndex];
+                var item = ListViewFiles.Items[_currentIndex];
                 item.Selected = true;
                 item.Focused = true;
                 item.EnsureVisible();
-                listViewFiles.Focus();
+                ListViewFiles.Focus();
             }
-        }
-
-        private void ListBoxVideos_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ChangeIndex(ListBoxFiles.SelectedIndex - _currentIndex);
-            PlayVideo(ListBoxFiles.SelectedIndex);
         }
 
         private void BtnSelectFolder_Click(object sender, EventArgs e)
@@ -246,43 +244,12 @@
             }
         }
 
-        /*private void renameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (ListBoxFiles.SelectedItem == null) return;
-
-            var selectedFile = ListBoxFiles.SelectedItem.ToString();
-            var currentPath = Path.Combine(_fileService.GetDirectory(), selectedFile);
-            string? newName = Prompt.ShowDialog("Новое имя файла:", "Переименование", selectedFile);
-            if (!string.IsNullOrWhiteSpace(newName))
-            {
-                var newPath = Path.Combine(_fileService.GetDirectory(), newName);
-                try
-                {
-                    bool isSameFile = new Uri(_mediaPlayer.Media?.Mrl ?? "").LocalPath == currentPath;
-                    bool isPlaying = _mediaPlayer.IsPlaying || _mediaPlayer.State == VLCState.Paused;
-                    if (isSameFile && isPlaying)
-                    {
-                        MessageBox.Show("Невозможно переименовать файл, который воспроизводится. Остановите воспроизведение.");
-                        return;
-                    }
-                    File.Move(currentPath, newPath);
-                    _fileService.DirectoryReshafle(_fileService.GetDirectory());
-                    _currentIndex = _fileService.GetFileIndex(newName);
-                    VideoPlayerReload(_currentIndex);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка при переименовании файла:\n{ex.Message}");
-                }
-            }
-        }*/
-
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (listViewFiles.SelectedItems.Count != 1)
+            if (ListViewFiles.SelectedItems.Count != 1)
                 return;
 
-            if (listViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
+            if (ListViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
                 return;
 
             var currentPath = selectedFileInfo.FullName;
@@ -333,16 +300,33 @@
                 _sortOrder = SortOrder.Ascending;
             }
 
-            listViewFiles.ListViewItemSorter = new FileListViewItemComparer(e.Column, _sortOrder);
-            listViewFiles.Sort();
+            ListViewFiles.ListViewItemSorter = new FileListViewItemComparer(e.Column, _sortOrder);
+            ListViewFiles.Sort();
+
+            if (ListViewFiles.SelectedItems.Count > 0)
+            {
+                var selectedFile = (FileInfo)ListViewFiles.SelectedItems[0].Tag;
+
+                for (int i = 0; i < ListViewFiles.Items.Count; i++)
+                {
+                    if (ListViewFiles.Items[i].Tag is FileInfo file && file.FullName == selectedFile.FullName)
+                    {
+                        ListViewFiles.Items[i].Selected = true;
+                        ListViewFiles.Items[i].Focused = true;
+                        ListViewFiles.Items[i].EnsureVisible();
+                        _currentIndex = i; // Обновляем индекс проигрываемого файла
+                        break;
+                    }
+                }
+            }
         }
 
         private void listViewFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listViewFiles.SelectedIndices.Count > 0)
+            if (ListViewFiles.SelectedIndices.Count > 0)
             {
-                ChangeIndex(listViewFiles.SelectedIndices[0] - _currentIndex);
-                PlayVideo(listViewFiles.SelectedIndices[0]);
+                ChangeIndex(ListViewFiles.SelectedIndices[0] - _currentIndex);
+                PlayVideo(ListViewFiles.SelectedIndices[0]);
             }
         }
     }
