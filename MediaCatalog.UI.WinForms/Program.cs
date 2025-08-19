@@ -17,6 +17,7 @@ namespace MediaCatalog.UI.WinForms
             try
             {
                 // Check for a configuration file
+                // Проверка наличия файла конфигурации
                 var configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFolderPath + AppSettings);
                 if (!File.Exists(configFile))
                     throw new FileNotFoundException("Configuration file not found.", configFile);
