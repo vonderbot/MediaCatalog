@@ -1,7 +1,6 @@
-﻿using FileCatalogBusinesLogic.Interfaces;
-using Microsoft.VisualBasic;
+﻿using MediaCatalog.BusinessLogic.Interfaces;
 
-namespace FileCatalogBusinesLogic.Services
+namespace MediaCatalog.BusinessLogic.Services
 {
     public class FileService : IFileService
     {
@@ -55,7 +54,7 @@ namespace FileCatalogBusinesLogic.Services
         {
             if (_files.Length > 0)
             {
-                for (int i = 0; i < (_files.Length - 1); i++)
+                for (int i = 0; i < _files.Length - 1; i++)
                 {
                     if(_files[i].Name == file)
                     {

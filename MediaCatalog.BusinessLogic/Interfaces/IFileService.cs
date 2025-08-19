@@ -1,4 +1,4 @@
-﻿namespace FileCatalogBusinesLogic.Interfaces
+﻿namespace MediaCatalog.BusinessLogic.Interfaces
 {
     public interface IFileService
     {

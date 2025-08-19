@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FileCatalogBusinesLogic\FileCatalogBusinesLogic.csproj" />
+    <ProjectReference Include="..\MediaCatalog.BusinessLogic\MediaCatalog.BusinessLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

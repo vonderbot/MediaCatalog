@@ -1,8 +1,8 @@
-﻿namespace FileCatalogInterface
+﻿namespace MediaCatalog.UI.WinForms
 {
-    using FileCatalogBusinesLogic.Interfaces;
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
+    using MediaCatalog.BusinessLogic.Interfaces;
     using System.IO;
 
     public partial class PlayerForm : Form

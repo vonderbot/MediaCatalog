@@ -1,4 +1,4 @@
-﻿namespace FileCatalogInterface
+﻿namespace MediaCatalog.UI.WinForms
 {
     public static class Prompt
     {

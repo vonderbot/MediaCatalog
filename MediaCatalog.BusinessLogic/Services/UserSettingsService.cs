@@ -1,8 +1,7 @@
-﻿using FileCatalogBusinesLogic.Interfaces;
-using FileCatalogViewModels.Models;
+﻿using MediaCatalog.BusinessLogic.Interfaces;
 using System.Text.Json;
 
-namespace FileCatalogBusinesLogic.Services
+namespace MediaCatalog.BusinessLogic.Services
 {
     public class UserSettingsService : IUserSettingsService
     {
@@ -17,7 +16,10 @@ namespace FileCatalogBusinesLogic.Services
         {
             var settings = new
             {
-                VideoSettings = new FileSettingsViewModel { Directory = newPath }
+                VideoSettings = new
+                {
+                    Directory = newPath
+                }
             };
 
             var options = new JsonSerializerOptions { WriteIndented = true };

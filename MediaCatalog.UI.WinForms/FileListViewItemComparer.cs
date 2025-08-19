@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Globalization;
 
-namespace FileCatalogInterface
+namespace MediaCatalog.UI.WinForms
 {
     public class FileListViewItemComparer : IComparer
     {

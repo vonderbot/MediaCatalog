@@ -1,4 +1,4 @@
-﻿namespace FileCatalogInterface
+﻿namespace MediaCatalog.UI.WinForms
 {
     partial class PlayerForm
     {
@@ -183,6 +183,7 @@
             // 
             // ListViewFiles
             // 
+            ListViewFiles.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             ListViewFiles.Columns.AddRange(new ColumnHeader[] { FileName, Format, CreationDate });
             ListViewFiles.ContextMenuStrip = contextMenuFiles;
             ListViewFiles.FullRowSelect = true;

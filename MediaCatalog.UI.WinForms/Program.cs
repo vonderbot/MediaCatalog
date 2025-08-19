@@ -1,14 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
-using FileCatalogBusinesLogic.Services;
+using MediaCatalog.BusinessLogic.Services;
 
-namespace FileCatalogInterface
+namespace MediaCatalog.UI.WinForms
 {
     internal static class Program
     {
         private const string VideoSettingsDirectoryKey = "VideoSettings:Directory";
         private const string SettingsFolderPath = "Settings/";
         private const string AppSettings = "appsettings.json";
-        private const string UserSettings = "UserSettings.json";
+        private const string UserSettingsFileName = "UserSettings.json";
+        private const string UserSettingsFolderName = "MediaCatalogApp";
 
         [STAThread]
         private static void Main()
@@ -23,13 +24,13 @@ namespace FileCatalogInterface
                 // Check for a user configuration file
                 string appFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "FileCatalogApp");
-                string settingsPath = Path.Combine(appFolder, UserSettings);
+                    UserSettingsFolderName);
+                string settingsPath = Path.Combine(appFolder, UserSettingsFileName);
                 if (!Directory.Exists(appFolder))
                     Directory.CreateDirectory(appFolder);
                 if (!File.Exists(settingsPath))
                 {
-                    var originalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFolderPath + UserSettings);
+                    var originalPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SettingsFolderPath + UserSettingsFileName);
                     if (File.Exists(originalPath))
                         File.Copy(originalPath, settingsPath);
                     else
