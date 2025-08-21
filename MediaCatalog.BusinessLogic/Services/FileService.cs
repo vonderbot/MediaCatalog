@@ -13,6 +13,38 @@ namespace MediaCatalog.BusinessLogic.Services
             _files = _directory.GetFiles();
         }
 
+        public void SetNewFileSequence(FileInfo[] newFiles)
+        {
+            if (CompareFileList(newFiles))
+            {
+
+            }   
+        }
+
+        public bool CompareFileList(FileInfo[] newFiles)
+        {
+            if (_files.Length != newFiles.Length)
+            {
+                return false;
+            }
+
+            int[] arr1Copy = (int[])_files.Clone();
+            int[] arr2Copy = (int[])newFiles.Clone();
+
+            Array.Sort(arr1Copy);
+            Array.Sort(arr2Copy);
+
+            return Enumerable.SequenceEqual(arr1Copy, arr2Copy);
+        }
+
+        public void RenameFile(FileInfo file, string newName)
+        {
+            var directory = GetDirectory();
+            var newPath = Path.Combine(directory, newName);
+            File.Move(file.FullName, newPath);
+            DirectoryReshafle(directory);
+        }
+
         public void DirectoryReshafle(string directoryName)
         {
             if (Directory.Exists(directoryName) && directoryName != _directory.FullName)
@@ -48,6 +80,11 @@ namespace MediaCatalog.BusinessLogic.Services
         public FileInfo[] GetFiles()
         {
             return _files;
+        }
+
+        public int CountFiles()
+        {
+            return _files.Count();
         }
 
         public int GetFileIndex(string file)

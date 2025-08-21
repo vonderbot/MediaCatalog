@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using MediaCatalog.BusinessLogic.Services;
+﻿using MediaCatalog.BusinessLogic.Services;
+using MediaCatalog.Presenters;
+using Microsoft.Extensions.Configuration;
 
 namespace MediaCatalog.UI.WinForms
 {
@@ -61,9 +62,10 @@ namespace MediaCatalog.UI.WinForms
                 ApplicationConfiguration.Initialize();
 
                 // Run the form
-                var controller = new FileService(videoDir);
-                var settingService = new UserSettingsService(settingsPath);
-                Application.Run(new PlayerForm(controller, settingService));
+                var fileService = new FileService(videoDir);
+                var userSettingsService = new UserSettingsService(settingsPath);
+                IMediaPresenter presenter = new MediaPresenter(fileService, userSettingsService);
+                Application.Run(new PlayerForm(presenter));
             }
             catch (FileNotFoundException ex)
             {

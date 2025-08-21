@@ -4,6 +4,10 @@
     {
         public void DirectoryReshafle(string directoryName);
 
+        public int CountFiles();
+
+        public void RenameFile(FileInfo file, string newName);
+
         public FileInfo[] GetFiles();
 
         public string GetDirectory();

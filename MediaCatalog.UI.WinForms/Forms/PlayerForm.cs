@@ -2,58 +2,45 @@
 {
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
-    using MediaCatalog.BusinessLogic.Interfaces;
+    using MediaCatalog.Presenters;
     using System.IO;
 
     public partial class PlayerForm : Form
     {
         private readonly LibVLC _libVlc;
         private readonly MediaPlayer _mediaPlayer;
-        private readonly IFileService _fileService;
-        private readonly IUserSettingsService _settingsService;
+        private readonly IMediaPresenter _presenter;
         private bool _isSeeking;
-        private int _currentIndex;
-        private int _sortColumn;
-        private SortOrder _sortOrder;
 
-        public PlayerForm(IFileService fileService, IUserSettingsService settingsService)
+        public PlayerForm(IMediaPresenter presenter)
         {
             InitializeComponent();
             Core.Initialize(); // important
 
             _libVlc = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVlc);
-            _fileService = fileService;
-            _settingsService = settingsService;
+            _presenter = presenter;
             _isSeeking = false;
-            _currentIndex = 0;
-            _sortColumn = -1;
-            _sortOrder = SortOrder.Ascending;
         }
 
         private void PlayerForm_Load(object sender, EventArgs e)
         {
             VideoView.MediaPlayer = _mediaPlayer;
             ChangeVolume(TrackBarVolume);
-            VideoPlayerReload(_currentIndex);
+            VideoPlayerReload(_presenter.GetCurrentIndex());
         }
 
         private void VideoPlayerReload(int newIndex)
         {
-            if (newIndex != _currentIndex)
-            {
-                _currentIndex = newIndex;
-            }
-            LoadFilesToListView();
-
+            _presenter.ChangeCurrentIndex(newIndex);
+            LoadFiles(_presenter.GetFilesInfo());
             positionTimer.Start();
         }
 
-        private void LoadFilesToListView()
+        private void LoadFiles(IEnumerable<FileInfo> files)
         {
             ListViewFiles.Items.Clear();
-
-            foreach (var fileInfo in _fileService.GetFiles())
+            foreach (var fileInfo in files)
             {
                 var item = new ListViewItem(Path.GetFileNameWithoutExtension(fileInfo.Name));
                 item.SubItems.Add(fileInfo.Extension);
@@ -75,6 +62,7 @@
             var media = new Media(_libVlc, fileInfo.FullName, FromType.FromPath);
             _mediaPlayer.Play(media);
             positionTimer.Start();
+            BtnPause.Text = "Play";
         }
 
         private void ChangeVolume(TrackBar trackBar)
@@ -83,24 +71,7 @@
             VolumeLbl.Text = $@"Volume: {trackBar.Value}%";
         }
 
-        private void ChangeIndex(int indexChange)
-        {
-            int itemCount = ListViewFiles.Items.Count;
-            if (itemCount == 0) return;
-
-            int newIndex = _currentIndex + indexChange;
-            if (newIndex < 0)
-            {
-                newIndex = itemCount + (newIndex % itemCount);
-            }
-            else
-            {
-                newIndex = newIndex % itemCount;
-            }
-            _currentIndex = newIndex;
-        }
-
-        private static string FormatTime(long milliseconds)
+        private static string FormatTimeString(long milliseconds)
         {
             var ts = TimeSpan.FromMilliseconds(milliseconds);
             return $"{ts.Minutes:D2}:{ts.Seconds:D2}";
@@ -108,17 +79,22 @@
 
         private void BtnPause_Click(object sender, EventArgs e)
         {
-            if (_mediaPlayer.State != VLCState.Stopped)
+            if (_mediaPlayer.State == VLCState.Playing)
             {
                 _mediaPlayer?.Pause();
-                BtnPause.Text = BtnPause.Text == "Pause" ? "Play" : "Pause";
+                BtnPause.Text = "Pause";
+            }
+            else if (_mediaPlayer.State == VLCState.Paused)
+            {
+                _mediaPlayer?.Pause();
+                BtnPause.Text = "Play";
             }
         }
 
         private void BtnStop_Click(object sender, EventArgs e)
         {
             _mediaPlayer?.Stop();
-            BtnPause.Text = "Pause";
+            BtnPause.Text = "Stoped";
             PositionLbl.Text = @"00:00 / 00:00";
         }
 
@@ -132,14 +108,13 @@
             long current = _mediaPlayer.Time;        // current position in MS
             long total = _mediaPlayer.Length;        // total duration in ms
 
-            PositionLbl.Text = $@"{FormatTime(current)} / {FormatTime(total)}";
+            PositionLbl.Text = $@"{FormatTimeString(current)} / {FormatTimeString(total)}";
             TrackBarSeek.Value = (int)(current * 1000 / total);
         }
 
         private void TrackBarSeek_Scroll(object sender, EventArgs e)
         {
             if (_mediaPlayer.Length <= 0) return;
-
             _mediaPlayer.Time = TrackBarSeek.Value * _mediaPlayer.Length / 1000;
         }
 
@@ -199,13 +174,16 @@
 
         private void NextFile_Click(object sender, EventArgs e)
         {
-            ChangeIndex(1);
+            _presenter.MoveCurrentIndex(1);
+            ReselectItem();
+        }
 
+        private void ReselectItem()
+        {
             ListViewFiles.SelectedItems.Clear();
-
-            if (_currentIndex >= 0 && _currentIndex < ListViewFiles.Items.Count)
+            if (_presenter.GetCurrentIndex() >= 0 && _presenter.GetCurrentIndex() < ListViewFiles.Items.Count)
             {
-                var item = ListViewFiles.Items[_currentIndex];
+                var item = ListViewFiles.Items[_presenter.GetCurrentIndex()];
                 item.Selected = true;
                 item.Focused = true;
                 item.EnsureVisible();
@@ -215,71 +193,45 @@
 
         private void PreviousFile_Click(object sender, EventArgs e)
         {
-            ChangeIndex(-1);
-
-            // Убираем текущее выделение
-            ListViewFiles.SelectedItems.Clear();
-
-            // Проверяем корректность индекса и выделяем нужный элемент
-            if (_currentIndex >= 0 && _currentIndex < ListViewFiles.Items.Count)
-            {
-                var item = ListViewFiles.Items[_currentIndex];
-                item.Selected = true;
-                item.Focused = true;
-                item.EnsureVisible();
-                ListViewFiles.Focus();
-            }
+            _presenter.MoveCurrentIndex(-1);
+            ReselectItem();
         }
 
         private void BtnSelectFolder_Click(object sender, EventArgs e)
         {
             using FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = _fileService.GetDirectory();
-
+            dialog.SelectedPath = _presenter.GetCurrentFileDirectory();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                _fileService.DirectoryReshafle(dialog.SelectedPath);
-                _settingsService.ChangeDirectoryPath(dialog.SelectedPath);
+                _presenter.ChangeDirectory(dialog.SelectedPath);
                 VideoPlayerReload(0);
             }
         }
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ListViewFiles.SelectedItems.Count != 1)
+            //проверяем, выделен ли только один объект и получаем его информацию
+            if (ListViewFiles.SelectedItems.Count != 1||
+                ListViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
                 return;
-
-            if (ListViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
-                return;
-
-            var currentPath = selectedFileInfo.FullName;
-            var selectedFileName = selectedFileInfo.Name;
-            string? newName = Prompt.ShowDialog("Новое имя файла:", "Переименование", selectedFileName);
+            //выводим пользователю диалогове окно для воода нового имени
+            string? newName = Prompt.ShowDialog("Новое имя файла:", "Переименование", selectedFileInfo.Name);
 
             if (!string.IsNullOrWhiteSpace(newName))
             {
-                var directory = _fileService.GetDirectory();
-                var newPath = Path.Combine(directory, newName);
-
                 try
                 {
                     string? mediaMrl = _mediaPlayer.Media?.Mrl;
                     string normalizedMediaPath = mediaMrl != null ? Uri.UnescapeDataString(new Uri(mediaMrl).LocalPath) : string.Empty;
-                    bool isSameFile = normalizedMediaPath == currentPath;
-
+                    bool isSameFile = normalizedMediaPath == selectedFileInfo.FullName;
                     bool isPlaying = _mediaPlayer.IsPlaying || _mediaPlayer.State == VLCState.Paused;
-
                     if (isSameFile && isPlaying)
                     {
                         MessageBox.Show("Невозможно переименовать файл, который воспроизводится. Остановите воспроизведение.");
                         return;
                     }
-
-                    File.Move(currentPath, newPath);
-
-                    _fileService.DirectoryReshafle(directory);
-                    _currentIndex = _fileService.GetFileIndex(newName);
-                    VideoPlayerReload(_currentIndex);
+                    _presenter.RenameFile(selectedFileInfo, newName);
+                    VideoPlayerReload(_presenter.GetCurrentIndex());
                 }
                 catch (Exception ex)
                 {
@@ -290,23 +242,13 @@
 
         private void listViewFiles_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            if (e.Column == _sortColumn && _sortOrder == SortOrder.Ascending)
-                _sortOrder = SortOrder.Descending;
-            else if (e.Column == _sortColumn && _sortOrder == SortOrder.Descending)
-                _sortOrder = SortOrder.Ascending;
-            else
-            {
-                _sortColumn = e.Column;
-                _sortOrder = SortOrder.Ascending;
-            }
-
-            ListViewFiles.ListViewItemSorter = new FileListViewItemComparer(e.Column, _sortOrder);
+            _presenter.NewSort(e.Column);
+            ListViewFiles.ListViewItemSorter = new FileListViewItemComparer(e.Column, _presenter.GetSortOrder());
             ListViewFiles.Sort();
 
             if (ListViewFiles.SelectedItems.Count > 0)
             {
                 var selectedFile = (FileInfo)ListViewFiles.SelectedItems[0].Tag;
-
                 for (int i = 0; i < ListViewFiles.Items.Count; i++)
                 {
                     if (ListViewFiles.Items[i].Tag is FileInfo file && file.FullName == selectedFile.FullName)
@@ -314,7 +256,7 @@
                         ListViewFiles.Items[i].Selected = true;
                         ListViewFiles.Items[i].Focused = true;
                         ListViewFiles.Items[i].EnsureVisible();
-                        _currentIndex = i; // Обновляем индекс проигрываемого файла
+                        _presenter.ChangeCurrentIndex(i);
                         break;
                     }
                 }
@@ -325,7 +267,7 @@
         {
             if (ListViewFiles.SelectedIndices.Count > 0)
             {
-                ChangeIndex(ListViewFiles.SelectedIndices[0] - _currentIndex);
+                _presenter.MoveCurrentIndex(ListViewFiles.SelectedIndices[0] - _presenter.GetCurrentIndex());
                 PlayVideo(ListViewFiles.SelectedIndices[0]);
             }
         }

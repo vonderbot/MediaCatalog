@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MediaCatalog.Common;
+using System.Collections;
 using System.Globalization;
 
 namespace MediaCatalog.UI.WinForms
@@ -6,9 +7,9 @@ namespace MediaCatalog.UI.WinForms
     public class FileListViewItemComparer : IComparer
     {
         private int _columnIndex;
-        private SortOrder _sortOrder;
+        private CatalogSortOrder _sortOrder;
 
-        public FileListViewItemComparer(int columnIndex, SortOrder sortOrder)
+        public FileListViewItemComparer(int columnIndex, CatalogSortOrder sortOrder)
         {
             _columnIndex = columnIndex;
             _sortOrder = sortOrder;
@@ -50,7 +51,7 @@ namespace MediaCatalog.UI.WinForms
             }
 
             // Возвращаем результат с учётом порядка сортировки
-            return _sortOrder == SortOrder.Descending ? -result : result;
+            return _sortOrder == CatalogSortOrder.Descending ? -result : result;
         }
     }
 }
