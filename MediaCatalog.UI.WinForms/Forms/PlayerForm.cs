@@ -35,6 +35,7 @@
             _presenter.ChangeCurrentIndex(newIndex);
             LoadFiles(_presenter.GetFilesInfo());
             positionTimer.Start();
+            ReselectItem();
         }
 
         private void LoadFiles(IEnumerable<FileInfo> files)
@@ -104,6 +105,11 @@
             {
                 return;
             }
+            else if (_mediaPlayer == null || _mediaPlayer.Length <= 0)
+            {
+                TrackBarSeek.Value = 0;
+                return;
+            }//экспериментальная защита от деления на ноль при фото
 
             long current = _mediaPlayer.Time;        // current position in MS
             long total = _mediaPlayer.Length;        // total duration in ms

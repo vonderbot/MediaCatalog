@@ -9,7 +9,6 @@ namespace MediaCatalog.Presenters
         //private readonly IPlayerView _view;//Возможно стоит удалить.
         private readonly IFileService _fileService;
         private readonly IUserSettingsService _settingsService;
-        private bool _isSeeking;
         private int _currentIndex;
         private int _sortColumn;
         private CatalogSortOrder _sortOrder;
@@ -18,7 +17,6 @@ namespace MediaCatalog.Presenters
         {
             _fileService = fileService;
             _settingsService = settingsService;
-            _isSeeking = false;
             _currentIndex = 0;
             _sortColumn = -1;
             _sortOrder = CatalogSortOrder.Ascending;
