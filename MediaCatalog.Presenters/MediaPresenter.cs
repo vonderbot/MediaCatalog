@@ -1,4 +1,5 @@
 ﻿using MediaCatalog.BusinessLogic.Interfaces;
+using MediaCatalog.BusinessLogic.Services;
 using MediaCatalog.Common;
 
 
@@ -9,17 +10,24 @@ namespace MediaCatalog.Presenters
         //private readonly IPlayerView _view;//Возможно стоит удалить.
         private readonly IFileService _fileService;
         private readonly IUserSettingsService _settingsService;
+        private readonly ITagService _tagService;
         private int _currentIndex;
         private int _sortColumn;
         private CatalogSortOrder _sortOrder;
 
-        public MediaPresenter(IFileService fileService, IUserSettingsService settingsService)
+        public MediaPresenter(IFileService fileService, IUserSettingsService settingsService, ITagService tagService)
         {
             _fileService = fileService;
             _settingsService = settingsService;
+            _tagService = tagService;
             _currentIndex = 0;
             _sortColumn = -1;
             _sortOrder = CatalogSortOrder.Ascending;
+        }
+
+        public async Task<String> GetTagName(int id)
+        {
+            return await _tagService.GetNameById(id);
         }
 
         public void NewSort(int columnNumber)

@@ -23,6 +23,11 @@
             _isSeeking = false;
         }
 
+        private async void label1_Click(object sender, EventArgs e)
+        {
+            label1.Text = await _presenter.GetTagName(1);
+        }
+
         private void PlayerForm_Load(object sender, EventArgs e)
         {
             VideoView.MediaPlayer = _mediaPlayer;
@@ -53,7 +58,7 @@
 
         private void PlayVideo(int fileIndex)
         {
-            if(fileIndex < 0 || fileIndex >= ListViewFiles.Items.Count)
+            if (fileIndex < 0 || fileIndex >= ListViewFiles.Items.Count)
                 return;
 
             var item = ListViewFiles.Items[fileIndex];
@@ -217,7 +222,7 @@
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //проверяем, выделен ли только один объект и получаем его информацию
-            if (ListViewFiles.SelectedItems.Count != 1||
+            if (ListViewFiles.SelectedItems.Count != 1 ||
                 ListViewFiles.SelectedItems[0].Tag is not FileInfo selectedFileInfo)
                 return;
             //выводим пользователю диалогове окно для воода нового имени

@@ -17,7 +17,7 @@ namespace MediaCatalog.BusinessLogic.Services
         {
             if (CompareFileList(newFiles))
             {
-
+                //????
             }   
         }
 

@@ -46,6 +46,7 @@
             FileName = new ColumnHeader();
             Format = new ColumnHeader();
             CreationDate = new ColumnHeader();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)VideoView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).BeginInit();
@@ -214,11 +215,22 @@
             CreationDate.Text = "Creation date";
             CreationDate.Width = 150;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(694, 13);
+            label1.Name = "label1";
+            label1.Size = new Size(38, 15);
+            label1.TabIndex = 13;
+            label1.Text = "label1";
+            label1.Click += label1_Click;
+            // 
             // PlayerForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1087, 445);
+            Controls.Add(label1);
             Controls.Add(ListViewFiles);
             Controls.Add(BtnSelectFolder);
             Controls.Add(PreviousFile);
@@ -260,5 +272,6 @@
         private ColumnHeader FileName;
         private ColumnHeader Format;
         private ColumnHeader CreationDate;
+        private Label label1;
     }
 }

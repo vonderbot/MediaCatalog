@@ -4,6 +4,7 @@ namespace MediaCatalog.Presenters
 {
     public interface IMediaPresenter
     {
+        public Task<String> GetTagName(int id);
         public IEnumerable<FileInfo> GetFilesInfo();
         public void NewSort(int columnNumber);
         public CatalogSortOrder GetSortOrder();

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34221.43
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCatalog.UI.WinForms", "MediaCatalog.UI.WinForms\MediaCatalog.UI.WinForms.csproj", "{E5CF49EC-2271-4871-A902-2B3F65219D14}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -20,8 +20,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCatalog.Presenters", "
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCatalog.DataAccess", "MediaCatalog.DataAccess\MediaCatalog.DataAccess.csproj", "{E29718FF-C8EE-47B3-A7AF-2299DD5014E9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0ED7511-4B4C-469C-940B-A4041CF955C9} = {A0ED7511-4B4C-469C-940B-A4041CF955C9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCatalog.Common", "MediaCatalog.Common\MediaCatalog.Common.csproj", "{F055673F-DCCD-483E-B175-B86B104CA262}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCatalog.Entities", "MediaCatalog.Entities\MediaCatalog.Entities.csproj", "{A0ED7511-4B4C-469C-940B-A4041CF955C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +54,10 @@ Global
 		{F055673F-DCCD-483E-B175-B86B104CA262}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F055673F-DCCD-483E-B175-B86B104CA262}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F055673F-DCCD-483E-B175-B86B104CA262}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0ED7511-4B4C-469C-940B-A4041CF955C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0ED7511-4B4C-469C-940B-A4041CF955C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0ED7511-4B4C-469C-940B-A4041CF955C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0ED7511-4B4C-469C-940B-A4041CF955C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
