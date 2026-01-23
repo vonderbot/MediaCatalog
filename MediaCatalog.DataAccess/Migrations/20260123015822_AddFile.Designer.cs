@@ -2,6 +2,7 @@
 using MediaCatalog.DataAccess.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,29 +10,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaCatalog.DataAccess.Migrations
 {
     [DbContext(typeof(MediaCatalogDbContext))]
-    partial class MediaCatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260123015822_AddFile")]
+    partial class AddFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.Folder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Folders");
-                });
-
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.MediaFile", b =>
+            modelBuilder.Entity("MediaCatalog.Entities.Entities.File", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,19 +39,19 @@ namespace MediaCatalog.DataAccess.Migrations
                     b.ToTable("Files");
                 });
 
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.MediaFileHasTag", b =>
+            modelBuilder.Entity("MediaCatalog.Entities.Entities.Folder", b =>
                 {
-                    b.Property<int>("MediaFileId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
-                    b.HasKey("MediaFileId", "TagId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("TagId");
-
-                    b.ToTable("MediaFileHasTags");
+                    b.ToTable("Folders");
                 });
 
             modelBuilder.Entity("MediaCatalog.Entities.Entities.Tag", b =>
@@ -101,7 +89,7 @@ namespace MediaCatalog.DataAccess.Migrations
                     b.ToTable("TagTypes");
                 });
 
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.MediaFile", b =>
+            modelBuilder.Entity("MediaCatalog.Entities.Entities.File", b =>
                 {
                     b.HasOne("MediaCatalog.Entities.Entities.Folder", "Folder")
                         .WithMany("Files")
@@ -110,25 +98,6 @@ namespace MediaCatalog.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Folder");
-                });
-
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.MediaFileHasTag", b =>
-                {
-                    b.HasOne("MediaCatalog.Entities.Entities.MediaFile", "MediaFile")
-                        .WithMany("MediaFileHasTags")
-                        .HasForeignKey("MediaFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MediaCatalog.Entities.Entities.Tag", "Tag")
-                        .WithMany("MediaFileHasTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaFile");
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("MediaCatalog.Entities.Entities.Tag", b =>
@@ -145,16 +114,6 @@ namespace MediaCatalog.DataAccess.Migrations
             modelBuilder.Entity("MediaCatalog.Entities.Entities.Folder", b =>
                 {
                     b.Navigation("Files");
-                });
-
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.MediaFile", b =>
-                {
-                    b.Navigation("MediaFileHasTags");
-                });
-
-            modelBuilder.Entity("MediaCatalog.Entities.Entities.Tag", b =>
-                {
-                    b.Navigation("MediaFileHasTags");
                 });
 
             modelBuilder.Entity("MediaCatalog.Entities.Entities.TagType", b =>

@@ -19,7 +19,7 @@ namespace MediaCatalog.UI.WinForms.Extensions
             string userSettingsPath,
             string VideoSettingsDirectoryKey)
         {
-            // ---------- DbContext ----------
+            // DbContext
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                                    ?? "MediaCatalogDb.db";
 
@@ -29,10 +29,10 @@ namespace MediaCatalog.UI.WinForms.Extensions
                 options.UseSqlite($"Data Source={dbPath}")
             );
 
-            // ---------- Repositories ----------
+            // Repositories
             services.AddScoped<ITagRepository, TagRepository>();
 
-            // ---------- Services ----------
+            // Services
             services.AddTransient<IUserSettingsService>(
                 _ => new UserSettingsService(userSettingsPath));
 
@@ -45,10 +45,10 @@ namespace MediaCatalog.UI.WinForms.Extensions
 
             services.AddScoped<ITagService, TagService>();
 
-            // ---------- Presenters ----------
+            // Presenters
             services.AddTransient<IMediaPresenter, MediaPresenter>();
 
-            // ---------- Forms ----------
+            // Forms
             services.AddTransient<PlayerForm>();
 
             return services;

@@ -77,7 +77,7 @@ namespace MediaCatalog.UI.WinForms
                     throw new DirectoryNotFoundException(
                         $"The directory specified in the configuration was not found: {videoDir}");
 
-                // ---------- DI container ----------
+                // DI container
                 var services = new ServiceCollection();
                 services.AddSingleton<IConfiguration>(configuration);
                 services.SetInject(configuration, appFolderPath, userSettingsPath, VideoSettingsDirectoryKey);
