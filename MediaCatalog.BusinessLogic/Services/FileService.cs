@@ -1,4 +1,7 @@
 ﻿using MediaCatalog.BusinessLogic.Interfaces;
+using MediaCatalog.DataAccess.Interfaces;
+using MediaCatalog.DataAccess.Repositories;
+using MediaCatalog.Entities.Entities;
 
 namespace MediaCatalog.BusinessLogic.Services
 {
@@ -6,19 +9,92 @@ namespace MediaCatalog.BusinessLogic.Services
     {
         private DirectoryInfo _directory;
         private FileInfo[] _files;
+        private readonly IMediaFileRepository _mediaFileRepository;
+        private readonly IFolderRepository _folderRepository;
+        private readonly IMediaFileHasTagRepository _mediaFileHasTagRepository;
 
-        public FileService(string directoryName)
+        public FileService(string directoryName, IMediaFileRepository MediaFileRepository, 
+            IFolderRepository FolderRepository, IMediaFileHasTagRepository mediaFileHasTagRepository)
         {
             _directory = new DirectoryInfo(directoryName);
             _files = _directory.GetFiles();
+            _mediaFileRepository = MediaFileRepository;
+            _folderRepository = FolderRepository;
+            _mediaFileHasTagRepository = mediaFileHasTagRepository;
         }
 
-        public void SetNewFileSequence(FileInfo[] newFiles)
+        public async Task<FileInfo[]> GetFilesByTagFilterAsync(IEnumerable<int> tagIds)
         {
-            if (CompareFileList(newFiles))
+            var tagIdList = tagIds.ToList();
+            if (!tagIdList.Any())
+                return _files;
+
+            var folder = await _folderRepository.GetByPath(GetDirectory());
+            if (folder == null)
+                return Array.Empty<FileInfo>();
+
+            // получаем Id файлов, подходящих под фильтр
+            var mediaFileIds = await _mediaFileHasTagRepository
+                .GetFileIdsByAllTagsAsync(folder.Id, tagIdList);
+            // сопоставляем с локальными файлам
+            var b = _files
+                .Where(f =>
+                    _mediaFileHasTagRepository
+                        .ExistsByNameFolderAndIds(
+                            f.Name,
+                            folder.Id,
+                            mediaFileIds))
+                .ToArray();
+            return b;
+        }
+
+        public async Task<int> CurrentFileId(int index)
+        {
+            var folder = await _folderRepository.GetByPath(this.GetDirectory());
+            var fileName = _files[index].Name;
+            if (folder == null)
+                throw new Exception("Can`t find folder");
+
+            var file = await _mediaFileRepository
+                .GetByNameAndFolder(fileName, folder.Id) 
+                ?? throw new Exception("Can`t find file");
+            return file.Id;
+        }
+
+        public async Task<bool> IsFileRegistered(int index)
+        {
+            var folder = await _folderRepository.GetByPath(this.GetDirectory());
+            var fileName = _files[index].Name;
+            if (folder == null)
+                return false;
+
+            var file = await _mediaFileRepository
+                .GetByNameAndFolder(fileName, folder.Id);
+
+            return file != null;
+        }
+
+        public async Task AddFileToDb(int index)
+        {
+            var fileName = _files[index].Name;
+            var folder = await _folderRepository.GetByPath(this.GetDirectory());
+
+            if (folder == null)
             {
-                //????
-            }   
+                await _folderRepository.Create(new Folder { Path = this.GetDirectory() });
+                await _folderRepository.Save();
+                folder = await _folderRepository.GetByPath(this.GetDirectory());
+            }
+            var existingFile = await _mediaFileRepository.GetByNameAndFolder(fileName, folder.Id);
+            if (existingFile == null)
+            {
+                await _mediaFileRepository.Create(new MediaFile
+                {
+                    Name = fileName,
+                    FolderId = folder.Id
+                });
+                await _folderRepository.Save();
+            }
         }
 
         public bool CompareFileList(FileInfo[] newFiles)

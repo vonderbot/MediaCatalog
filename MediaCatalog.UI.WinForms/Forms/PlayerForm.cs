@@ -2,7 +2,9 @@
 {
     using LibVLCSharp.Shared;
     using LibVLCSharp.WinForms;
+    using MediaCatalog.Entities.Entities;
     using MediaCatalog.Presenters;
+    using MediaCatalog.UI.WinForms.Forms;
     using System.IO;
 
     public partial class PlayerForm : Form
@@ -11,6 +13,7 @@
         private readonly MediaPlayer _mediaPlayer;
         private readonly IMediaPresenter _presenter;
         private bool _isSeeking;
+        private bool _isLoadingTags;
 
         public PlayerForm(IMediaPresenter presenter)
         {
@@ -23,9 +26,10 @@
             _isSeeking = false;
         }
 
-        private async void label1_Click(object sender, EventArgs e)
+        private void AddFileButton_Click(object sender, EventArgs e)
         {
-            label1.Text = await _presenter.GetTagName(1);
+            _presenter.AddCurentFiletoDb(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+            ChangeTagPanelState();
         }
 
         private void PlayerForm_Load(object sender, EventArgs e)
@@ -35,12 +39,13 @@
             VideoPlayerReload(_presenter.GetCurrentIndex());
         }
 
-        private void VideoPlayerReload(int newIndex)
+        private async void VideoPlayerReload(int newIndex)
         {
             _presenter.ChangeCurrentIndex(newIndex);
             LoadFiles(_presenter.GetFilesInfo());
             positionTimer.Start();
             ReselectItem();
+            await LoadTagsForFiltrationAsync();
         }
 
         private void LoadFiles(IEnumerable<FileInfo> files)
@@ -50,6 +55,7 @@
             {
                 var item = new ListViewItem(Path.GetFileNameWithoutExtension(fileInfo.Name));
                 item.SubItems.Add(fileInfo.Extension);
+                item.Name = fileInfo.Name;
                 item.SubItems.Add(fileInfo.CreationTime.ToString("dd.MM.yyyy"));
                 item.Tag = fileInfo; // сохраняем FileInfo для дальнейшей работы (переименование, удаление, сортировка)
                 ListViewFiles.Items.Add(item);
@@ -280,7 +286,119 @@
             {
                 _presenter.MoveCurrentIndex(ListViewFiles.SelectedIndices[0] - _presenter.GetCurrentIndex());
                 PlayVideo(ListViewFiles.SelectedIndices[0]);
+                ChangeTagPanelState();
             }
+        }
+
+        private void ToggleTagPanel_Click(object sender, EventArgs e)
+        {
+            splitContainer2.Panel2Collapsed = !splitContainer2.Panel2Collapsed;
+        }
+
+        public async void ChangeTagPanelState()
+        {
+            if (await _presenter.CheckFileRegistration(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name))
+            {
+                AddFileButton.Visible = false;
+                TagPanel.Visible = true;
+                await LoadTagsForFileAsync();
+            }
+            else
+            {
+                AddFileButton.Visible = true;
+                TagPanel.Visible = false;
+            }
+        }
+
+        private async void CreateTagButton_Click(object sender, EventArgs e)
+        {
+            string? tagName = Prompt.ShowDialog(
+                "Введите название тега:",
+                "Новый тег",
+                string.Empty);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(tagName))
+                    throw new Exception("название тэга не может быть пустым");
+                await _presenter.AddNewTag(tagName.Trim());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении тега:\n{ex.Message}");
+            }
+        }
+
+        private async void AssignTagButton_Click(object sender, EventArgs e)
+        {
+            var tags = await _presenter.GetAllTagsAsync();
+
+            using var dialog = new SelectTagForm(tags);
+            if (dialog.ShowDialog() != DialogResult.OK || dialog.SelectedTag == null)
+                return;
+
+            await _presenter.AssignTagToCurrentFileAsync(dialog.SelectedTag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+        }
+
+        public async Task LoadTagsForFileAsync()
+        {
+            _isLoadingTags = true;
+            listViewAssignTags.Items.Clear();
+
+            var allTags = await _presenter.GetAllTagsAsync();
+            var assignedTagIds = await _presenter.GetTagIdsForFileAsync(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+
+            foreach (var tag in allTags)
+            {
+                var item = new ListViewItem(tag.Name)
+                {
+                    Tag = tag,
+                    Checked = assignedTagIds.Contains(tag.Id)
+                };
+
+                listViewAssignTags.Items.Add(item);
+            }
+            _isLoadingTags = false;
+        }
+
+        public async Task LoadTagsForFiltrationAsync()
+        {
+            listViewFilterTags.Items.Clear();
+
+            var allTags = await _presenter.GetAllTagsAsync();
+
+            foreach (var tag in allTags)
+            {
+                var item = new ListViewItem(tag.Name)
+                {
+                    Tag = tag,
+                };
+
+                listViewFilterTags.Items.Add(item);
+            }
+        }
+
+        private async void listViewAssignTags_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            if (e.Item.Tag is not Tag tag)
+                return;
+
+            if (_isLoadingTags)
+                return;
+
+            if (e.Item.Checked)
+                await _presenter.AssignTagToCurrentFileAsync(tag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+            else
+                await _presenter.RemoveTagFromCurrentFileAsync(tag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+        }
+
+        private async void listViewFilterTags_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            var tagIds = listViewFilterTags.CheckedItems
+        .Cast<ListViewItem>()
+        .Select(i => ((Tag)i.Tag).Id)
+        .ToList();
+
+            LoadFiles(await _presenter.ApplyTagFilterAsync(tagIds));
         }
     }
 }

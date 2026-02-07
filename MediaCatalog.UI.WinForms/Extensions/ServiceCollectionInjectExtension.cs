@@ -31,6 +31,9 @@ namespace MediaCatalog.UI.WinForms.Extensions
 
             // Repositories
             services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<IMediaFileRepository, MediaFileRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<IMediaFileHasTagRepository, MediaFileHasTagRepository>();
 
             // Services
             services.AddTransient<IUserSettingsService>(
@@ -40,7 +43,10 @@ namespace MediaCatalog.UI.WinForms.Extensions
             {
                 var config = provider.GetRequiredService<IConfiguration>();
                 var videoDir = config[VideoSettingsDirectoryKey]!;
-                return new FileService(videoDir);
+                var folderRepo = provider.GetRequiredService<IFolderRepository>();
+                var fileRepo = provider.GetRequiredService<IMediaFileRepository>();
+                var mediaFileHasTagRepo = provider.GetRequiredService<IMediaFileHasTagRepository>();
+                return new FileService(videoDir, fileRepo, folderRepo, mediaFileHasTagRepo);
             });
 
             services.AddScoped<ITagService, TagService>();

@@ -29,6 +29,8 @@ namespace MediaCatalog.DataAccess.Contexts
                 .HasOne(x => x.Tag)
                 .WithMany(t => t.MediaFileHasTags)
                 .HasForeignKey(x => x.TagId);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

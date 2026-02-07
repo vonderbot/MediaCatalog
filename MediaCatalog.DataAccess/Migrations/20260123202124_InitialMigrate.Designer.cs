@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaCatalog.DataAccess.Migrations
 {
     [DbContext(typeof(MediaCatalogDbContext))]
-    [Migration("20260123114954_AddMediaFileHasTag")]
-    partial class AddMediaFileHasTag
+    [Migration("20260123202124_InitialMigrate")]
+    partial class InitialMigrate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,7 +79,7 @@ namespace MediaCatalog.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TagTypeId")
+                    b.Property<int?>("TagTypeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -138,9 +138,7 @@ namespace MediaCatalog.DataAccess.Migrations
                 {
                     b.HasOne("MediaCatalog.Entities.Entities.TagType", "TagType")
                         .WithMany("Tags")
-                        .HasForeignKey("TagTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TagTypeId");
 
                     b.Navigation("TagType");
                 });

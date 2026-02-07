@@ -76,7 +76,7 @@ namespace MediaCatalog.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TagTypeId")
+                    b.Property<int?>("TagTypeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -135,9 +135,7 @@ namespace MediaCatalog.DataAccess.Migrations
                 {
                     b.HasOne("MediaCatalog.Entities.Entities.TagType", "TagType")
                         .WithMany("Tags")
-                        .HasForeignKey("TagTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TagTypeId");
 
                     b.Navigation("TagType");
                 });

@@ -2,6 +2,14 @@
 {
     public interface IFileService
     {
+        public Task<FileInfo[]> GetFilesByTagFilterAsync(IEnumerable<int> tagIds);
+
+        public Task<int> CurrentFileId(int index);
+
+        public Task<bool> IsFileRegistered(int index);
+
+        public Task AddFileToDb(int index);
+
         public void DirectoryReshafle(string directoryName);
 
         public int CountFiles();

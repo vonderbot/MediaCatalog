@@ -1,6 +1,8 @@
 ﻿using MediaCatalog.BusinessLogic.Interfaces;
 using MediaCatalog.BusinessLogic.Services;
 using MediaCatalog.Common;
+using MediaCatalog.Entities.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace MediaCatalog.Presenters
@@ -23,6 +25,56 @@ namespace MediaCatalog.Presenters
             _currentIndex = 0;
             _sortColumn = -1;
             _sortOrder = CatalogSortOrder.Ascending;
+        }
+
+        public async Task<IEnumerable<FileInfo>> ApplyTagFilterAsync(IEnumerable<int> tagIds)
+        {
+            var files = await _fileService.GetFilesByTagFilterAsync(tagIds);
+            return files;
+        }
+
+        public async Task<IEnumerable<int>> GetTagIdsForFileAsync(string fileName)
+        {
+            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
+            return await _tagService.GetAssignTagsId(fileId);
+        }
+
+        public async Task AssignTagToCurrentFileAsync(int tagId, string fileName)
+        {
+            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
+            await _tagService.AssignTagToFile(tagId, fileId);
+        }
+
+        public async Task RemoveTagFromCurrentFileAsync(int tagId, string fileName)
+        {
+            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
+            await _tagService.RemoveTagFromFile(tagId, fileId);
+        }
+
+        public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+        {
+            return await _tagService.GetAllTags();
+        }
+
+        public async Task AddNewTag(string newTagName)
+        {
+            if (string.IsNullOrWhiteSpace(newTagName))
+                throw new Exception("название тэга не может быть пустым");
+            if (await _tagService.TagExists(newTagName))
+                throw new Exception("такой тэг уже существует");
+
+            await _tagService.CreateTagAsync(newTagName);
+            //_view.RefreshTagList();
+        }
+
+        public async Task<bool> CheckFileRegistration(string fileName)
+        {
+            return await _fileService.IsFileRegistered(_fileService.GetFileIndex(fileName));
+        }
+
+        public async Task AddCurentFiletoDb(string fileName)
+        {
+            await _fileService.AddFileToDb(_fileService.GetFileIndex(fileName));
         }
 
         public async Task<String> GetTagName(int id)

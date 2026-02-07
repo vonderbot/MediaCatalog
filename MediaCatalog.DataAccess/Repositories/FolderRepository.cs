@@ -5,17 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaCatalog.DataAccess.Repositories
 {
-    public class TagRepository : BaseRepository<Tag>, ITagRepository
+    public class FolderRepository : BaseRepository<Folder>, IFolderRepository
     {
-        public TagRepository(MediaCatalogDbContext DbContext)
+        public FolderRepository(MediaCatalogDbContext DbContext)
             : base(DbContext)
         {
         }
 
-        public async Task<Tag?> GetByName(string tagName)
+        public async Task<Folder?> GetByPath(string path)
         {
-            return await Table.FirstOrDefaultAsync(c => c.Name == tagName);
+            return await Table.FirstOrDefaultAsync(c => c.Path == path);
         }
-
     }
 }

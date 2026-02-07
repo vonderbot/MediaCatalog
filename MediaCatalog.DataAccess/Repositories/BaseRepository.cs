@@ -12,13 +12,13 @@ namespace MediaCatalog.DataAccess.Repositories
 {
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
-        protected readonly MediaCatalogDbContext ContributionDbContext;
+        protected readonly MediaCatalogDbContext _mediaCatalogDbContext;
         protected readonly DbSet<T> Table;
 
-        protected BaseRepository(MediaCatalogDbContext contributionDbContext)
+        protected BaseRepository(MediaCatalogDbContext DbContext)
         {
-            ContributionDbContext = contributionDbContext;
-            Table = ContributionDbContext.Set<T>();
+            _mediaCatalogDbContext = DbContext;
+            Table = _mediaCatalogDbContext.Set<T>();
         }
 
         public async Task<int> GetNumberOfTableRecords()
@@ -62,7 +62,7 @@ namespace MediaCatalog.DataAccess.Repositories
 
         public async Task Save()
         {
-            await ContributionDbContext.SaveChangesAsync();
+            await _mediaCatalogDbContext.SaveChangesAsync();
         }
     }
 }
