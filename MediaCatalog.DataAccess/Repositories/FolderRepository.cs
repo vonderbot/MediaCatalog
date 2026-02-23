@@ -7,14 +7,16 @@ namespace MediaCatalog.DataAccess.Repositories
 {
     public class FolderRepository : BaseRepository<Folder>, IFolderRepository
     {
-        public FolderRepository(MediaCatalogDbContext DbContext)
-            : base(DbContext)
+        public FolderRepository(MediaCatalogDbContext dbContext)
+            : base(dbContext)
         {
         }
 
         public async Task<Folder?> GetByPath(string path)
         {
-            return await Table.FirstOrDefaultAsync(c => c.Path == path);
+            return await _table
+                .AsNoTracking()
+                .FirstOrDefaultAsync(folder => folder.Path == path);
         }
     }
 }

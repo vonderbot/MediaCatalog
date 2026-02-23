@@ -4,62 +4,85 @@ using MediaCatalog.Entities.Entities;
 
 namespace MediaCatalog.BusinessLogic.Services
 {
-    public class TagService: ITagService
+    public class TagService : ITagService
     {
-        private readonly ITagRepository _tagRepository;
         private readonly IMediaFileHasTagRepository _mediaFileHasTagRepository;
+        private readonly ITagRepository _tagRepository;
 
-        public TagService(ITagRepository tagRepository, IMediaFileHasTagRepository mediaFileHasTagRepository)
+        public TagService(
+            ITagRepository tagRepository,
+            IMediaFileHasTagRepository mediaFileHasTagRepository)
         {
-            _tagRepository = tagRepository;
-            _mediaFileHasTagRepository = mediaFileHasTagRepository;
+            _tagRepository = tagRepository
+                ?? throw new ArgumentNullException(nameof(tagRepository));
+            _mediaFileHasTagRepository = mediaFileHasTagRepository
+                ?? throw new ArgumentNullException(nameof(mediaFileHasTagRepository));
         }
 
-        public async Task AssignTagToFile(int tagId, int fileId)
+        public async Task AssignTagToFileAsync(int tagId, int mediaFileId)
         {
-            await _mediaFileHasTagRepository.Create(new MediaFileHasTag() { MediaFileId = fileId, TagId = tagId });
-            await _mediaFileHasTagRepository.Save();
+            var assignedTagIds =
+                await _mediaFileHasTagRepository.GetTagIdsByMediaFileIdAsync(mediaFileId);
+
+            if (assignedTagIds.Contains(tagId))
+                return;
+
+            await _mediaFileHasTagRepository.CreateAsync(new MediaFileHasTag
+            {
+                MediaFileId = mediaFileId,
+                TagId = tagId
+            });
+
+            await _mediaFileHasTagRepository.SaveAsync();
         }
 
-        public async Task RemoveTagFromFile(int tagId, int fileId)
+        public async Task RemoveTagFromFileAsync(int tagId, int mediaFileId)
         {
-            await _mediaFileHasTagRepository.DeleteAsync(fileId, tagId);
-            await _mediaFileHasTagRepository.Save();
-        }
-
-        public async Task<IEnumerable<Tag>> GetAllTags()
-        {
-            return await _tagRepository.GetAll();
+            await _mediaFileHasTagRepository.DeleteAsync(mediaFileId, tagId);
+            await _mediaFileHasTagRepository.SaveAsync();
         }
 
         public async Task CreateTagAsync(string tagName)
         {
-            await _tagRepository.Create(new Entities.Entities.Tag() { Name = tagName });
+            if (string.IsNullOrWhiteSpace(tagName))
+                throw new ArgumentException("Tag name cannot be empty.", nameof(tagName));
+
+            if (await ExistsAsync(tagName))
+                return;
+
+            await _tagRepository.Create(new Tag
+            {
+                Name = tagName.Trim()
+            });
+
             await _tagRepository.Save();
         }
 
-        public async Task<bool> TagExists(string tagName)
+        public async Task<IEnumerable<Tag>> GetAllAsync()
         {
-            var tag = await _tagRepository.GetByName(tagName);
-            if (tag == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return await _tagRepository.GetAll();
         }
 
-        public async Task<string> GetNameById(int id)
+        public async Task<string> GetNameByIdAsync(int tagId)
         {
-            var tag = await _tagRepository.GetById(id);
+            var tag = await _tagRepository.GetById(tagId)
+                ?? throw new InvalidOperationException($"Tag with id {tagId} not found.");
+
             return tag.Name;
         }
 
-        public async Task<IEnumerable<int>> GetAssignTagsId(int fileId)
+        public async Task<IReadOnlyCollection<int>> GetTagIdsByMediaFileIdAsync(int mediaFileId)
         {
-            return await _mediaFileHasTagRepository.GetTagIdsByMediaFileIdAsync(fileId);
+            return await _mediaFileHasTagRepository
+                .GetTagIdsByMediaFileIdAsync(mediaFileId);
+        }
+
+        public async Task<bool> ExistsAsync(string tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName))
+                return false;
+
+            return await _tagRepository.GetByNameAsync(tagName) != null;
         }
     }
 }

@@ -1,20 +1,24 @@
 ﻿using MediaCatalog.Entities.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace MediaCatalog.DataAccess.Interfaces
 {
     public interface IMediaFileHasTagRepository
     {
-        public Task Create(MediaFileHasTag entity);
+        Task CreateAsync(MediaFileHasTag entity);
 
-        public Task DeleteAsync(int mediaFileId, int tagId);
+        Task DeleteAsync(int mediaFileId, int tagId);
 
-        public Task Save();
+        bool ExistsByNameFolderAndIds(
+            string fileName,
+            int folderId,
+            IReadOnlyCollection<int> allowedMediaFileIds);
 
-        public Task<List<int>> GetTagIdsByMediaFileIdAsync(int mediaFileId);
+        Task<IReadOnlyList<int>> GetFileIdsByAllTagsAsync(
+            int folderId,
+            IEnumerable<int> tagIds);
 
-        public bool ExistsByNameFolderAndIds(string fileName, int folderId, ICollection<int> allowedIds);
+        Task<IReadOnlyList<int>> GetTagIdsByMediaFileIdAsync(int mediaFileId);
 
-        public Task<List<int>> GetFileIdsByAllTagsAsync(int folderId, IEnumerable<int> tagIds);
+        Task SaveAsync();
     }
 }

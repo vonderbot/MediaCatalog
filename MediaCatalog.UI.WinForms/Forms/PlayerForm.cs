@@ -1,11 +1,11 @@
-﻿namespace MediaCatalog.UI.WinForms
+﻿using LibVLCSharp.Shared;
+using LibVLCSharp.WinForms;
+using MediaCatalog.Entities.Entities;
+using MediaCatalog.Presenters;
+using MediaCatalog.UI.WinForms.Forms;
+
+namespace MediaCatalog.UI.WinForms
 {
-    using LibVLCSharp.Shared;
-    using LibVLCSharp.WinForms;
-    using MediaCatalog.Entities.Entities;
-    using MediaCatalog.Presenters;
-    using MediaCatalog.UI.WinForms.Forms;
-    using System.IO;
 
     public partial class PlayerForm : Form
     {
@@ -14,6 +14,7 @@
         private readonly IMediaPresenter _presenter;
         private bool _isSeeking;
         private bool _isLoadingTags;
+        private int _currentFileIndex;
 
         public PlayerForm(IMediaPresenter presenter)
         {
@@ -28,20 +29,35 @@
 
         private void AddFileButton_Click(object sender, EventArgs e)
         {
-            _presenter.AddCurentFiletoDb(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+            _presenter.AddCurentFiletoDb(ListViewFiles.Items[_currentFileIndex].Name);
             ChangeTagPanelState();
         }
 
-        private void PlayerForm_Load(object sender, EventArgs e)
+        private async void PlayerForm_Load(object sender, EventArgs e)
         {
             VideoView.MediaPlayer = _mediaPlayer;
             ChangeVolume(TrackBarVolume);
-            VideoPlayerReload(_presenter.GetCurrentIndex());
+
+            LoadFiles(_presenter.GetFilesInfo());
+            positionTimer.Start();
+            var lastOpenedFile = _presenter.GetLastOpenedFile();
+            if (lastOpenedFile != null)
+            {
+                for(int i = 0; i < ListViewFiles.Items.Count; i++){
+                    if (lastOpenedFile == ListViewFiles.Items[i].Name)
+                    {
+                        _currentFileIndex = i;
+                        break;
+                    }
+                }
+            }
+            ReselectItem();
+            await LoadTagsForFiltrationAsync();
         }
 
         private async void VideoPlayerReload(int newIndex)
         {
-            _presenter.ChangeCurrentIndex(newIndex);
+            _currentFileIndex = newIndex;
             LoadFiles(_presenter.GetFilesInfo());
             positionTimer.Start();
             ReselectItem();
@@ -191,16 +207,16 @@
 
         private void NextFile_Click(object sender, EventArgs e)
         {
-            _presenter.MoveCurrentIndex(1);
+            MoveCurrentFileIndex(1);
             ReselectItem();
         }
 
         private void ReselectItem()
         {
             ListViewFiles.SelectedItems.Clear();
-            if (_presenter.GetCurrentIndex() >= 0 && _presenter.GetCurrentIndex() < ListViewFiles.Items.Count)
+            if (_currentFileIndex >= 0 && _currentFileIndex < ListViewFiles.Items.Count)
             {
-                var item = ListViewFiles.Items[_presenter.GetCurrentIndex()];
+                var item = ListViewFiles.Items[_currentFileIndex];
                 item.Selected = true;
                 item.Focused = true;
                 item.EnsureVisible();
@@ -210,8 +226,27 @@
 
         private void PreviousFile_Click(object sender, EventArgs e)
         {
-            _presenter.MoveCurrentIndex(-1);
+            MoveCurrentFileIndex(-1);
             ReselectItem();
+        }
+
+        private void MoveCurrentFileIndex(int MoveStep)
+        {
+            //Проверяем количество файлов
+            int itemCount = ListViewFiles.Items.Count;
+            if (itemCount == 0) return;
+            //Перемещаем действующий индекс на заданый шаг
+            int newIndex = _currentFileIndex + MoveStep;
+            //Проверяем, выход за пределы количества файлов
+            if (newIndex < 0)
+            {
+                newIndex = itemCount + (newIndex % itemCount);
+            }
+            else
+            {
+                newIndex = newIndex % itemCount;
+            }
+            _currentFileIndex = newIndex;
         }
 
         private void BtnSelectFolder_Click(object sender, EventArgs e)
@@ -247,8 +282,8 @@
                         MessageBox.Show("Невозможно переименовать файл, который воспроизводится. Остановите воспроизведение.");
                         return;
                     }
-                    _presenter.RenameFile(selectedFileInfo, newName);
-                    VideoPlayerReload(_presenter.GetCurrentIndex());
+                    //_presenter.RenameFile(selectedFileInfo, newName);
+                    VideoPlayerReload(_currentFileIndex);
                 }
                 catch (Exception ex)
                 {
@@ -273,7 +308,7 @@
                         ListViewFiles.Items[i].Selected = true;
                         ListViewFiles.Items[i].Focused = true;
                         ListViewFiles.Items[i].EnsureVisible();
-                        _presenter.ChangeCurrentIndex(i);
+                        MoveCurrentFileIndex(i);
                         break;
                     }
                 }
@@ -284,7 +319,7 @@
         {
             if (ListViewFiles.SelectedIndices.Count > 0)
             {
-                _presenter.MoveCurrentIndex(ListViewFiles.SelectedIndices[0] - _presenter.GetCurrentIndex());
+                MoveCurrentFileIndex(ListViewFiles.SelectedIndices[0] - _currentFileIndex);
                 PlayVideo(ListViewFiles.SelectedIndices[0]);
                 ChangeTagPanelState();
             }
@@ -297,7 +332,7 @@
 
         public async void ChangeTagPanelState()
         {
-            if (await _presenter.CheckFileRegistration(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name))
+            if (await _presenter.CheckFileRegistration(ListViewFiles.Items[_currentFileIndex].Name))
             {
                 AddFileButton.Visible = false;
                 TagPanel.Visible = true;
@@ -321,6 +356,8 @@
                 if (string.IsNullOrWhiteSpace(tagName))
                     throw new Exception("название тэга не может быть пустым");
                 await _presenter.AddNewTag(tagName.Trim());
+                await LoadTagsForFileAsync();
+                await LoadTagsForFiltrationAsync();
             }
             catch (Exception ex)
             {
@@ -336,7 +373,7 @@
             if (dialog.ShowDialog() != DialogResult.OK || dialog.SelectedTag == null)
                 return;
 
-            await _presenter.AssignTagToCurrentFileAsync(dialog.SelectedTag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+            await _presenter.AssignTagToCurrentFileAsync(dialog.SelectedTag.Id, ListViewFiles.Items[_currentFileIndex].Name);
         }
 
         public async Task LoadTagsForFileAsync()
@@ -345,7 +382,7 @@
             listViewAssignTags.Items.Clear();
 
             var allTags = await _presenter.GetAllTagsAsync();
-            var assignedTagIds = await _presenter.GetTagIdsForFileAsync(ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+            var assignedTagIds = await _presenter.GetTagIdsForFileAsync(ListViewFiles.Items[_currentFileIndex].Name);
 
             foreach (var tag in allTags)
             {
@@ -362,6 +399,7 @@
 
         public async Task LoadTagsForFiltrationAsync()
         {
+            _isLoadingTags = true;
             listViewFilterTags.Items.Clear();
 
             var allTags = await _presenter.GetAllTagsAsync();
@@ -370,11 +408,12 @@
             {
                 var item = new ListViewItem(tag.Name)
                 {
-                    Tag = tag,
+                    Tag = tag
                 };
 
                 listViewFilterTags.Items.Add(item);
             }
+            _isLoadingTags = false;
         }
 
         private async void listViewAssignTags_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -386,19 +425,31 @@
                 return;
 
             if (e.Item.Checked)
-                await _presenter.AssignTagToCurrentFileAsync(tag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+                await _presenter.AssignTagToCurrentFileAsync(tag.Id, ListViewFiles.Items[_currentFileIndex].Name);
             else
-                await _presenter.RemoveTagFromCurrentFileAsync(tag.Id, ListViewFiles.Items[_presenter.GetCurrentIndex()].Name);
+                await _presenter.RemoveTagFromCurrentFileAsync(tag.Id, ListViewFiles.Items[_currentFileIndex].Name);
         }
 
         private async void listViewFilterTags_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             var tagIds = listViewFilterTags.CheckedItems
-        .Cast<ListViewItem>()
-        .Select(i => ((Tag)i.Tag).Id)
-        .ToList();
+                .Cast<ListViewItem>()
+                .Select(i => ((Tag)i.Tag).Id)
+                .ToList();
 
+            if (_isLoadingTags)
+                return;
+
+            //_currentFileIndex = 0;
             LoadFiles(await _presenter.ApplyTagFilterAsync(tagIds));
+            positionTimer.Start();
+            ReselectItem();
+        }
+
+        private void PlayerForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var a = ListViewFiles.Items[_currentFileIndex];
+            _presenter.SaveLastOpenedFile(a.Name);
         }
     }
 }

@@ -4,6 +4,6 @@ namespace MediaCatalog.DataAccess.Interfaces
 {
     public interface ITagRepository : IBaseRepository<Tag>
     {
-        public Task<Tag?> GetByName(string tagName);
+        Task<Tag?> GetByNameAsync(string tagName);
     }
 }

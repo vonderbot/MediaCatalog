@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MediaCatalog.DataAccess.Interfaces
+﻿namespace MediaCatalog.DataAccess.Interfaces
 {
     public interface IBaseRepository<T> where T : class
     {
-        public Task<int> GetNumberOfTableRecords();
+        Task Create(T entity);
 
-        public Task<IEnumerable<T>> GetAll();
+        Task Delete(int id);
 
-        public Task<T> GetById(int id);
+        Task<IEnumerable<T>> GetAll();
 
-        public Task Create(T entity);
+        Task<T?> GetById(int id);
 
-        public void Update(T entity);
+        Task<int> GetCount();
 
-        public Task Delete(int id);
+        Task Save();
 
-        public Task Save();
+        void Update(T entity);
     }
 }

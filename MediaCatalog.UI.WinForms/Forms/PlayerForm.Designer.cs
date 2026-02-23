@@ -48,11 +48,14 @@
             CreationDate = new ColumnHeader();
             label1 = new Label();
             SplitMain = new SplitContainer();
+            splitContainer4 = new SplitContainer();
+            splitContainer5 = new SplitContainer();
+            splitContainer6 = new SplitContainer();
+            splitContainer7 = new SplitContainer();
             splitContainer2 = new SplitContainer();
             splitContainer1 = new SplitContainer();
             ToggleTagPanel = new Button();
             TagPanel = new Panel();
-            AssignTagButton = new Button();
             CreateTagButton = new Button();
             splitContainer3 = new SplitContainer();
             listViewAssignTags = new ListView();
@@ -68,6 +71,22 @@
             SplitMain.Panel1.SuspendLayout();
             SplitMain.Panel2.SuspendLayout();
             SplitMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer4).BeginInit();
+            splitContainer4.Panel1.SuspendLayout();
+            splitContainer4.Panel2.SuspendLayout();
+            splitContainer4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer5).BeginInit();
+            splitContainer5.Panel1.SuspendLayout();
+            splitContainer5.Panel2.SuspendLayout();
+            splitContainer5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer6).BeginInit();
+            splitContainer6.Panel1.SuspendLayout();
+            splitContainer6.Panel2.SuspendLayout();
+            splitContainer6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer7).BeginInit();
+            splitContainer7.Panel1.SuspendLayout();
+            splitContainer7.Panel2.SuspendLayout();
+            splitContainer7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
             splitContainer2.Panel1.SuspendLayout();
             splitContainer2.Panel2.SuspendLayout();
@@ -85,12 +104,12 @@
             // 
             // VideoView
             // 
-            VideoView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             VideoView.BackColor = Color.Black;
-            VideoView.Location = new Point(3, 29);
+            VideoView.Dock = DockStyle.Fill;
+            VideoView.Location = new Point(0, 0);
             VideoView.MediaPlayer = null;
             VideoView.Name = "VideoView";
-            VideoView.Size = new Size(516, 335);
+            VideoView.Size = new Size(520, 329);
             VideoView.TabIndex = 0;
             VideoView.Text = "videoView1";
             // 
@@ -118,7 +137,7 @@
             // 
             PositionLbl.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PositionLbl.AutoSize = true;
-            PositionLbl.Location = new Point(447, 7);
+            PositionLbl.Location = new Point(143, 9);
             PositionLbl.Name = "PositionLbl";
             PositionLbl.Size = new Size(72, 15);
             PositionLbl.TabIndex = 4;
@@ -130,13 +149,13 @@
             // 
             // TrackBarSeek
             // 
-            TrackBarSeek.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             TrackBarSeek.AutoSize = false;
-            TrackBarSeek.Location = new Point(3, 367);
+            TrackBarSeek.Dock = DockStyle.Fill;
+            TrackBarSeek.Location = new Point(0, 0);
             TrackBarSeek.Margin = new Padding(0);
             TrackBarSeek.Maximum = 1000;
             TrackBarSeek.Name = "TrackBarSeek";
-            TrackBarSeek.Size = new Size(535, 29);
+            TrackBarSeek.Size = new Size(561, 27);
             TrackBarSeek.TabIndex = 5;
             TrackBarSeek.TickFrequency = 0;
             TrackBarSeek.TickStyle = TickStyle.None;
@@ -147,7 +166,7 @@
             // TrackBarVolume
             // 
             TrackBarVolume.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            TrackBarVolume.Location = new Point(525, 271);
+            TrackBarVolume.Location = new Point(3, 231);
             TrackBarVolume.Maximum = 100;
             TrackBarVolume.Name = "TrackBarVolume";
             TrackBarVolume.Orientation = Orientation.Vertical;
@@ -162,7 +181,7 @@
             // 
             VolumeLbl.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             VolumeLbl.AutoSize = true;
-            VolumeLbl.Location = new Point(366, 8);
+            VolumeLbl.Location = new Point(62, 9);
             VolumeLbl.Name = "VolumeLbl";
             VolumeLbl.Size = new Size(75, 15);
             VolumeLbl.TabIndex = 7;
@@ -260,15 +279,7 @@
             // 
             // SplitMain.Panel1
             // 
-            SplitMain.Panel1.Controls.Add(BtnPause);
-            SplitMain.Panel1.Controls.Add(BtnStop);
-            SplitMain.Panel1.Controls.Add(PreviousFile);
-            SplitMain.Panel1.Controls.Add(NextFile);
-            SplitMain.Panel1.Controls.Add(VideoView);
-            SplitMain.Panel1.Controls.Add(VolumeLbl);
-            SplitMain.Panel1.Controls.Add(TrackBarSeek);
-            SplitMain.Panel1.Controls.Add(PositionLbl);
-            SplitMain.Panel1.Controls.Add(TrackBarVolume);
+            SplitMain.Panel1.Controls.Add(splitContainer4);
             // 
             // SplitMain.Panel2
             // 
@@ -277,6 +288,80 @@
             SplitMain.Size = new Size(1036, 396);
             SplitMain.SplitterDistance = 561;
             SplitMain.TabIndex = 14;
+            // 
+            // splitContainer4
+            // 
+            splitContainer4.Dock = DockStyle.Fill;
+            splitContainer4.Location = new Point(0, 0);
+            splitContainer4.Name = "splitContainer4";
+            splitContainer4.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainer4.Panel1
+            // 
+            splitContainer4.Panel1.Controls.Add(splitContainer5);
+            // 
+            // splitContainer4.Panel2
+            // 
+            splitContainer4.Panel2.Controls.Add(splitContainer6);
+            splitContainer4.Size = new Size(561, 396);
+            splitContainer4.SplitterDistance = 32;
+            splitContainer4.TabIndex = 0;
+            // 
+            // splitContainer5
+            // 
+            splitContainer5.Dock = DockStyle.Fill;
+            splitContainer5.Location = new Point(0, 0);
+            splitContainer5.Name = "splitContainer5";
+            // 
+            // splitContainer5.Panel1
+            // 
+            splitContainer5.Panel1.Controls.Add(BtnPause);
+            splitContainer5.Panel1.Controls.Add(BtnStop);
+            splitContainer5.Panel1.Controls.Add(NextFile);
+            splitContainer5.Panel1.Controls.Add(PreviousFile);
+            // 
+            // splitContainer5.Panel2
+            // 
+            splitContainer5.Panel2.Controls.Add(VolumeLbl);
+            splitContainer5.Panel2.Controls.Add(PositionLbl);
+            splitContainer5.Size = new Size(561, 32);
+            splitContainer5.SplitterDistance = 339;
+            splitContainer5.TabIndex = 0;
+            // 
+            // splitContainer6
+            // 
+            splitContainer6.Dock = DockStyle.Fill;
+            splitContainer6.Location = new Point(0, 0);
+            splitContainer6.Name = "splitContainer6";
+            splitContainer6.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainer6.Panel1
+            // 
+            splitContainer6.Panel1.Controls.Add(splitContainer7);
+            // 
+            // splitContainer6.Panel2
+            // 
+            splitContainer6.Panel2.Controls.Add(TrackBarSeek);
+            splitContainer6.Size = new Size(561, 360);
+            splitContainer6.SplitterDistance = 329;
+            splitContainer6.TabIndex = 0;
+            // 
+            // splitContainer7
+            // 
+            splitContainer7.Dock = DockStyle.Fill;
+            splitContainer7.Location = new Point(0, 0);
+            splitContainer7.Name = "splitContainer7";
+            // 
+            // splitContainer7.Panel1
+            // 
+            splitContainer7.Panel1.Controls.Add(VideoView);
+            // 
+            // splitContainer7.Panel2
+            // 
+            splitContainer7.Panel2.Controls.Add(TrackBarVolume);
+            splitContainer7.Size = new Size(561, 329);
+            splitContainer7.SplitterDistance = 520;
+            splitContainer7.TabIndex = 0;
             // 
             // splitContainer2
             // 
@@ -330,7 +415,6 @@
             // 
             // TagPanel
             // 
-            TagPanel.Controls.Add(AssignTagButton);
             TagPanel.Controls.Add(CreateTagButton);
             TagPanel.Controls.Add(splitContainer3);
             TagPanel.Dock = DockStyle.Fill;
@@ -339,16 +423,6 @@
             TagPanel.Size = new Size(471, 192);
             TagPanel.TabIndex = 1;
             TagPanel.Visible = false;
-            // 
-            // AssignTagButton
-            // 
-            AssignTagButton.Location = new Point(93, 3);
-            AssignTagButton.Name = "AssignTagButton";
-            AssignTagButton.Size = new Size(84, 41);
-            AssignTagButton.TabIndex = 1;
-            AssignTagButton.Text = "Assign new tag";
-            AssignTagButton.UseVisualStyleBackColor = true;
-            AssignTagButton.Click += AssignTagButton_Click;
             // 
             // CreateTagButton
             // 
@@ -433,16 +507,34 @@
             Controls.Add(label1);
             Name = "PlayerForm";
             Text = "File catalog";
+            FormClosing += PlayerForm_FormClosing;
             Load += PlayerForm_Load;
             ((System.ComponentModel.ISupportInitialize)VideoView).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).EndInit();
             contextMenuFiles.ResumeLayout(false);
             SplitMain.Panel1.ResumeLayout(false);
-            SplitMain.Panel1.PerformLayout();
             SplitMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)SplitMain).EndInit();
             SplitMain.ResumeLayout(false);
+            splitContainer4.Panel1.ResumeLayout(false);
+            splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer4).EndInit();
+            splitContainer4.ResumeLayout(false);
+            splitContainer5.Panel1.ResumeLayout(false);
+            splitContainer5.Panel2.ResumeLayout(false);
+            splitContainer5.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer5).EndInit();
+            splitContainer5.ResumeLayout(false);
+            splitContainer6.Panel1.ResumeLayout(false);
+            splitContainer6.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer6).EndInit();
+            splitContainer6.ResumeLayout(false);
+            splitContainer7.Panel1.ResumeLayout(false);
+            splitContainer7.Panel2.ResumeLayout(false);
+            splitContainer7.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer7).EndInit();
+            splitContainer7.ResumeLayout(false);
             splitContainer2.Panel1.ResumeLayout(false);
             splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
@@ -486,11 +578,14 @@
         private Button AddFileButton;
         private Panel TagPanel;
         private Button CreateTagButton;
-        private Button AssignTagButton;
         private ListView listViewAssignTags;
         private ColumnHeader Tag;
         private SplitContainer splitContainer3;
         private ListView listViewFilterTags;
         private ColumnHeader columnHeader1;
+        private SplitContainer splitContainer4;
+        private SplitContainer splitContainer5;
+        private SplitContainer splitContainer6;
+        private SplitContainer splitContainer7;
     }
 }

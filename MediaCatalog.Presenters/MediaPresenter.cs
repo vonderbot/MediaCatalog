@@ -1,85 +1,91 @@
 ﻿using MediaCatalog.BusinessLogic.Interfaces;
-using MediaCatalog.BusinessLogic.Services;
 using MediaCatalog.Common;
 using MediaCatalog.Entities.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace MediaCatalog.Presenters
 {
     public class MediaPresenter : IMediaPresenter
     {
-        //private readonly IPlayerView _view;//Возможно стоит удалить.
-        private readonly IFileService _fileService;
+        private readonly IFileSystemService _fileSystemService;
+        private readonly IMediaFileService _mediaFileService;
         private readonly IUserSettingsService _settingsService;
         private readonly ITagService _tagService;
-        private int _currentIndex;
         private int _sortColumn;
         private CatalogSortOrder _sortOrder;
 
-        public MediaPresenter(IFileService fileService, IUserSettingsService settingsService, ITagService tagService)
+        public MediaPresenter(IFileSystemService fileSystemService, IMediaFileService mediaFileService, IUserSettingsService settingsService, ITagService tagService)
         {
-            _fileService = fileService;
+            _fileSystemService = fileSystemService;
+            _mediaFileService = mediaFileService;
             _settingsService = settingsService;
             _tagService = tagService;
-            _currentIndex = 0;
             _sortColumn = -1;
             _sortOrder = CatalogSortOrder.Ascending;
         }
 
+        public string? GetLastOpenedFile()
+        {
+            return _settingsService.GetLastOpenedFile();
+        }
+
+        public void SaveLastOpenedFile(string fileName)
+        {
+             _settingsService.SaveLastOpenedFile(fileName);
+        }
+
         public async Task<IEnumerable<FileInfo>> ApplyTagFilterAsync(IEnumerable<int> tagIds)
         {
-            var files = await _fileService.GetFilesByTagFilterAsync(tagIds);
+            var files = await _mediaFileService.GetFilesByTagFilterAsync(tagIds, _fileSystemService);
             return files;
         }
 
         public async Task<IEnumerable<int>> GetTagIdsForFileAsync(string fileName)
         {
-            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
-            return await _tagService.GetAssignTagsId(fileId);
+            var fileId = await _mediaFileService.GetMediaFileIdAsync(_fileSystemService.GetDirectoryPath(), fileName);
+            return await _tagService.GetTagIdsByMediaFileIdAsync(fileId);
         }
 
         public async Task AssignTagToCurrentFileAsync(int tagId, string fileName)
         {
-            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
-            await _tagService.AssignTagToFile(tagId, fileId);
+            var fileId = await _mediaFileService.GetMediaFileIdAsync(_fileSystemService.GetDirectoryPath(), fileName);
+            await _tagService.AssignTagToFileAsync(tagId, fileId);
         }
 
         public async Task RemoveTagFromCurrentFileAsync(int tagId, string fileName)
         {
-            var fileId = await _fileService.CurrentFileId(_fileService.GetFileIndex(fileName));
-            await _tagService.RemoveTagFromFile(tagId, fileId);
+            var fileId = await _mediaFileService.GetMediaFileIdAsync(_fileSystemService.GetDirectoryPath(), fileName);
+            await _tagService.RemoveTagFromFileAsync(tagId, fileId);
         }
 
         public async Task<IEnumerable<Tag>> GetAllTagsAsync()
         {
-            return await _tagService.GetAllTags();
+            return await _tagService.GetAllAsync();
         }
 
         public async Task AddNewTag(string newTagName)
         {
             if (string.IsNullOrWhiteSpace(newTagName))
                 throw new Exception("название тэга не может быть пустым");
-            if (await _tagService.TagExists(newTagName))
+            if (await _tagService.ExistsAsync(newTagName))
                 throw new Exception("такой тэг уже существует");
 
             await _tagService.CreateTagAsync(newTagName);
-            //_view.RefreshTagList();
         }
 
         public async Task<bool> CheckFileRegistration(string fileName)
         {
-            return await _fileService.IsFileRegistered(_fileService.GetFileIndex(fileName));
+            return await _mediaFileService.IsFileRegisteredAsync(_fileSystemService.GetDirectoryPath(), fileName);
         }
 
         public async Task AddCurentFiletoDb(string fileName)
         {
-            await _fileService.AddFileToDb(_fileService.GetFileIndex(fileName));
+            await _mediaFileService.AddFileIfNotExistsAsync(_fileSystemService.GetDirectoryPath(), fileName);
         }
 
         public async Task<String> GetTagName(int id)
         {
-            return await _tagService.GetNameById(id);
+            return await _tagService.GetNameByIdAsync(id);
         }
 
         public void NewSort(int columnNumber)
@@ -93,7 +99,6 @@ namespace MediaCatalog.Presenters
                 _sortColumn = columnNumber;
                 _sortOrder = CatalogSortOrder.Ascending;
             }
-            //_fileService.
         }
 
         public CatalogSortOrder GetSortOrder()
@@ -101,58 +106,26 @@ namespace MediaCatalog.Presenters
             return _sortOrder;
         }
 
-        public void RenameFile(FileInfo file, string newName)
-        {
-            _fileService.RenameFile(file, newName);
-            _currentIndex = _fileService.GetFileIndex(newName);
-        }
+        //public void RenameFile(FileInfo file, string newName)
+        //{
+        //    _fileService.RenameFile(file, newName);
+        //    _currentIndex = _fileService.GetFileIndex(newName);
+        //}
 
         public void ChangeDirectory(string newPath)
         {
-            _fileService.DirectoryReshafle(newPath);
+            _fileSystemService.RefreshDirectory(newPath);
             _settingsService.ChangeDirectoryPath(newPath);
         }
 
         public IEnumerable<FileInfo> GetFilesInfo()
         {
-            return _fileService.GetFiles();
+            return _fileSystemService.GetFiles();
         }
 
         public string GetCurrentFileDirectory()
         {
-            return _fileService.GetDirectory();
-        }
-
-        public void MoveCurrentIndex(int MoveStep)
-        {
-            //Проверяем количество файлов
-            int itemCount = _fileService.CountFiles();
-            if (itemCount == 0) return;
-            //Перемещаем действующий индекс на заданый шаг
-            int newIndex = _currentIndex + MoveStep;
-            //Проверяем, выход за пределы количества файлов
-            if (newIndex < 0)
-            {
-                newIndex = itemCount + (newIndex % itemCount);
-            }
-            else
-            {
-                newIndex = newIndex % itemCount;
-            }
-            _currentIndex = newIndex;
-        }
-
-        public void ChangeCurrentIndex(int newIndex)
-        {
-            if (newIndex != _currentIndex)
-            {
-                _currentIndex = newIndex;
-            }
-        }
-
-        public int GetCurrentIndex()
-        {
-            return _currentIndex;
+            return _fileSystemService.GetDirectoryPath();
         }
     }
 }

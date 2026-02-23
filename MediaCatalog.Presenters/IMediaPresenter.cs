@@ -5,6 +5,8 @@ namespace MediaCatalog.Presenters
 {
     public interface IMediaPresenter
     {
+        public string? GetLastOpenedFile();
+        void SaveLastOpenedFile(string fileName);
         public Task<IEnumerable<FileInfo>> ApplyTagFilterAsync(IEnumerable<int> tagIds);
         public Task AssignTagToCurrentFileAsync(int tagId, string fileName);
         public Task RemoveTagFromCurrentFileAsync(int tagId, string fileName);
@@ -16,12 +18,9 @@ namespace MediaCatalog.Presenters
         public IEnumerable<FileInfo> GetFilesInfo();
         public void NewSort(int columnNumber);
         public CatalogSortOrder GetSortOrder();
-        public void RenameFile(FileInfo file, string newName);
+        //public void RenameFile(FileInfo file, string newName);
         public void ChangeDirectory(string newPath);
         public string GetCurrentFileDirectory();
-        public void ChangeCurrentIndex(int newIndex);
-        public void MoveCurrentIndex(int MoveStep);
-        public int GetCurrentIndex();
         public Task<IEnumerable<int>> GetTagIdsForFileAsync(string fileName);
     }
 }

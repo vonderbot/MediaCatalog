@@ -5,17 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MediaCatalog.DataAccess.Repositories
 {
-    public class TagRepository : BaseRepository<Tag>, ITagRepository
+    public class TagRepository
+        : BaseRepository<Tag>, ITagRepository
     {
-        public TagRepository(MediaCatalogDbContext DbContext)
-            : base(DbContext)
+        public TagRepository(MediaCatalogDbContext dbContext)
+            : base(dbContext)
         {
         }
 
-        public async Task<Tag?> GetByName(string tagName)
+        public async Task<Tag?> GetByNameAsync(string tagName)
         {
-            return await Table.FirstOrDefaultAsync(c => c.Name == tagName);
+            return await _table
+                .AsNoTracking()
+                .FirstOrDefaultAsync(tag => tag.Name == tagName);
         }
-
     }
 }

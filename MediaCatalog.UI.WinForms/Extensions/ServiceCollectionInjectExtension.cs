@@ -39,14 +39,28 @@ namespace MediaCatalog.UI.WinForms.Extensions
             services.AddTransient<IUserSettingsService>(
                 _ => new UserSettingsService(userSettingsPath));
 
-            services.AddTransient<IFileService>(provider =>
+            //services.AddTransient<IFileService>(provider =>
+            //{
+            //    var config = provider.GetRequiredService<IConfiguration>();
+            //    var videoDir = config[VideoSettingsDirectoryKey]!;
+            //    var folderRepo = provider.GetRequiredService<IFolderRepository>();
+            //    var fileRepo = provider.GetRequiredService<IMediaFileRepository>();
+            //    var mediaFileHasTagRepo = provider.GetRequiredService<IMediaFileHasTagRepository>();
+            //    return new FileService(videoDir, fileRepo, folderRepo, mediaFileHasTagRepo);
+            //});
+
+            services.AddTransient<IFileSystemService>(provider =>
             {
                 var config = provider.GetRequiredService<IConfiguration>();
                 var videoDir = config[VideoSettingsDirectoryKey]!;
+                return new FileSystemService(videoDir);
+            });
+            services.AddTransient<IMediaFileService>(provider =>
+            {
                 var folderRepo = provider.GetRequiredService<IFolderRepository>();
                 var fileRepo = provider.GetRequiredService<IMediaFileRepository>();
                 var mediaFileHasTagRepo = provider.GetRequiredService<IMediaFileHasTagRepository>();
-                return new FileService(videoDir, fileRepo, folderRepo, mediaFileHasTagRepo);
+                return new MediaFileService(folderRepo, fileRepo, mediaFileHasTagRepo);
             });
 
             services.AddScoped<ITagService, TagService>();

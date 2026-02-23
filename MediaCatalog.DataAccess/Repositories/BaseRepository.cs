@@ -2,67 +2,62 @@
 using MediaCatalog.DataAccess.Interfaces;
 using MediaCatalog.Entities.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaCatalog.DataAccess.Repositories
 {
-    public abstract class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
+    public abstract class BaseRepository<T> : IBaseRepository<T>
+        where T : BaseEntity
     {
-        protected readonly MediaCatalogDbContext _mediaCatalogDbContext;
-        protected readonly DbSet<T> Table;
+        protected readonly MediaCatalogDbContext _dbContext;
+        protected readonly DbSet<T> _table;
 
-        protected BaseRepository(MediaCatalogDbContext DbContext)
+        protected BaseRepository(MediaCatalogDbContext dbContext)
         {
-            _mediaCatalogDbContext = DbContext;
-            Table = _mediaCatalogDbContext.Set<T>();
-        }
-
-        public async Task<int> GetNumberOfTableRecords()
-        {
-            return await Table.CountAsync();
-        }
-
-        public async Task<IEnumerable<T>> GetAll()
-        {
-            return await Table.ToListAsync();
-        }
-
-        public virtual async Task<T> GetById(int id)
-        {
-            return await Table.FindAsync(id);
+            _dbContext = dbContext;
+            _table = _dbContext.Set<T>();
         }
 
         public async Task Create(T entity)
         {
-            await Table.AddAsync(entity);
-        }
-
-        public void Update(T entity)
-        {
-            Table.Update(entity);
+            await _table.AddAsync(entity);
         }
 
         public async Task Delete(int id)
         {
-            var existing = await Table.FindAsync(id);
+            var entity = await _table.FindAsync(id);
 
-            if (existing != null)
+            if (entity is null)
             {
-                Table.Remove(existing);
+                throw new InvalidOperationException(
+                    $"Entity of type {typeof(T).Name} with id {id} was not found.");
             }
-            else
-            {
-                throw new Exception("Unable to delete, id does not exist.");
-            }
+
+            _table.Remove(entity);
+        }
+
+        public async Task<IEnumerable<T>> GetAll()
+        {
+            return await _table.ToListAsync();
+        }
+
+        public virtual async Task<T?> GetById(int id)
+        {
+            return await _table.FindAsync(id);
+        }
+
+        public async Task<int> GetCount()
+        {
+            return await _table.CountAsync();
         }
 
         public async Task Save()
         {
-            await _mediaCatalogDbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public void Update(T entity)
+        {
+            _table.Update(entity);
         }
     }
 }
