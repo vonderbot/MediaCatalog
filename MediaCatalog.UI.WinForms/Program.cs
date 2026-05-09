@@ -1,12 +1,8 @@
-﻿using MediaCatalog.BusinessLogic.Services;
-using MediaCatalog.DataAccess;
-using MediaCatalog.DataAccess.Contexts;
-using MediaCatalog.Presenters;
+﻿using MediaCatalog.DataAccess.Contexts;
 using MediaCatalog.UI.WinForms.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SQLitePCL;
 
 namespace MediaCatalog.UI.WinForms
 {
@@ -46,11 +42,52 @@ namespace MediaCatalog.UI.WinForms
                         File.WriteAllText(userSettingsPath, "{}"); // empty JSON
                 }
 
-                // Configuration
+                // ======================================================
+                // Base configuration
+                // ======================================================
+
+                var baseConfiguration = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile(
+                        Path.Combine(SettingsFolderPath, AppSettings),
+                        optional: false,
+                        reloadOnChange: true)
+                    .Build();
+
+                // ======================================================
+                // Environment
+                // ======================================================
+
+                var environment =
+                    Environment.GetEnvironmentVariable("MEDIACATALOG_ENVIRONMENT")
+                    ?? baseConfiguration["Environment"]
+                    ?? "Development";
+
+                // ======================================================
+                // Environment settings
+                // ======================================================
+
+                var environmentSettingsFile =
+                    $"appsettings.{environment}.json";
+
+                // ======================================================
+                // Final configuration
+                // ======================================================
+
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                    .AddJsonFile(SettingsFolderPath + AppSettings, optional: false, reloadOnChange: true)
-                    .AddJsonFile(userSettingsPath, optional: false, reloadOnChange: true)
+                    .AddJsonFile(
+                        Path.Combine(SettingsFolderPath, AppSettings),
+                        optional: false,
+                        reloadOnChange: true)
+                    .AddJsonFile(
+                        Path.Combine(SettingsFolderPath, environmentSettingsFile),
+                        optional: true,
+                        reloadOnChange: true)
+                    .AddJsonFile(
+                        userSettingsPath,
+                        optional: false,
+                        reloadOnChange: true)
                     .Build();
 
                 // Initialize database context

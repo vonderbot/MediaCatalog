@@ -436,6 +436,7 @@
             // 
             // splitContainer3
             // 
+            splitContainer3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             splitContainer3.Location = new Point(0, 50);
             splitContainer3.Name = "splitContainer3";
             // 
@@ -452,9 +453,9 @@
             // 
             // listViewAssignTags
             // 
+            listViewAssignTags.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             listViewAssignTags.CheckBoxes = true;
             listViewAssignTags.Columns.AddRange(new ColumnHeader[] { Tag });
-            listViewAssignTags.Dock = DockStyle.Fill;
             listViewAssignTags.FullRowSelect = true;
             listViewAssignTags.Location = new Point(0, 0);
             listViewAssignTags.Name = "listViewAssignTags";
@@ -471,9 +472,9 @@
             // 
             // listViewFilterTags
             // 
+            listViewFilterTags.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             listViewFilterTags.CheckBoxes = true;
             listViewFilterTags.Columns.AddRange(new ColumnHeader[] { columnHeader1 });
-            listViewFilterTags.Dock = DockStyle.Fill;
             listViewFilterTags.FullRowSelect = true;
             listViewFilterTags.Location = new Point(0, 0);
             listViewFilterTags.Name = "listViewFilterTags";
@@ -505,10 +506,12 @@
             ClientSize = new Size(1036, 396);
             Controls.Add(SplitMain);
             Controls.Add(label1);
+            KeyPreview = true;
             Name = "PlayerForm";
             Text = "File catalog";
             FormClosing += PlayerForm_FormClosing;
             Load += PlayerForm_Load;
+            KeyDown += PlayerForm_KeyDown;
             ((System.ComponentModel.ISupportInitialize)VideoView).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarSeek).EndInit();
             ((System.ComponentModel.ISupportInitialize)TrackBarVolume).EndInit();

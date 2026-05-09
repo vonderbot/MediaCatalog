@@ -43,7 +43,8 @@ namespace MediaCatalog.UI.WinForms
             var lastOpenedFile = _presenter.GetLastOpenedFile();
             if (lastOpenedFile != null)
             {
-                for(int i = 0; i < ListViewFiles.Items.Count; i++){
+                for (int i = 0; i < ListViewFiles.Items.Count; i++)
+                {
                     if (lastOpenedFile == ListViewFiles.Items[i].Name)
                     {
                         _currentFileIndex = i;
@@ -207,8 +208,7 @@ namespace MediaCatalog.UI.WinForms
 
         private void NextFile_Click(object sender, EventArgs e)
         {
-            MoveCurrentFileIndex(1);
-            ReselectItem();
+            ShowNextFile();
         }
 
         private void ReselectItem()
@@ -226,8 +226,7 @@ namespace MediaCatalog.UI.WinForms
 
         private void PreviousFile_Click(object sender, EventArgs e)
         {
-            MoveCurrentFileIndex(-1);
-            ReselectItem();
+            ShowPreviousFile();
         }
 
         private void MoveCurrentFileIndex(int MoveStep)
@@ -450,6 +449,32 @@ namespace MediaCatalog.UI.WinForms
         {
             var a = ListViewFiles.Items[_currentFileIndex];
             _presenter.SaveLastOpenedFile(a.Name);
+        }
+
+        private void PlayerForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.A)
+            {
+                ShowPreviousFile();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.D)
+            {
+                ShowNextFile();
+                e.Handled = true;
+            }
+        }
+
+        private void ShowNextFile()
+        {
+            MoveCurrentFileIndex(1);
+            ReselectItem();
+        }
+
+        private void ShowPreviousFile()
+        {
+            MoveCurrentFileIndex(-1);
+            ReselectItem();
         }
     }
 }
