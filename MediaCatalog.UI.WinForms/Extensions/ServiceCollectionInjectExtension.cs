@@ -1,0 +1,77 @@
+﻿using MediaCatalog.BusinessLogic.Interfaces;
+using MediaCatalog.BusinessLogic.Services;
+using MediaCatalog.DataAccess.Contexts;
+using MediaCatalog.DataAccess.Interfaces;
+using MediaCatalog.DataAccess.Repositories;
+using MediaCatalog.Presenters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace MediaCatalog.UI.WinForms.Extensions
+{
+    public static class ServiceCollectionInjectExtension
+    {
+        public static IServiceCollection SetInject(
+            this IServiceCollection services, 
+            IConfiguration configuration,
+            string appFolder,
+            string userSettingsPath,
+            string VideoSettingsDirectoryKey)
+        {
+            // DbContext
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                                   ?? "MediaCatalogDb.db";
+
+            var dbPath = Path.Combine(appFolder, connectionString);
+
+            services.AddDbContext<MediaCatalogDbContext>(options =>
+                options.UseSqlite($"Data Source={dbPath}")
+            );
+
+            // Repositories
+            services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<IMediaFileRepository, MediaFileRepository>();
+            services.AddScoped<IFolderRepository, FolderRepository>();
+            services.AddScoped<IMediaFileHasTagRepository, MediaFileHasTagRepository>();
+
+            // Services
+            services.AddTransient<IUserSettingsService>(
+                _ => new UserSettingsService(userSettingsPath));
+
+            //services.AddTransient<IFileService>(provider =>
+            //{
+            //    var config = provider.GetRequiredService<IConfiguration>();
+            //    var videoDir = config[VideoSettingsDirectoryKey]!;
+            //    var folderRepo = provider.GetRequiredService<IFolderRepository>();
+            //    var fileRepo = provider.GetRequiredService<IMediaFileRepository>();
+            //    var mediaFileHasTagRepo = provider.GetRequiredService<IMediaFileHasTagRepository>();
+            //    return new FileService(videoDir, fileRepo, folderRepo, mediaFileHasTagRepo);
+            //});
+
+            services.AddTransient<IFileSystemService>(provider =>
+            {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var videoDir = config[VideoSettingsDirectoryKey]!;
+                return new FileSystemService(videoDir);
+            });
+            services.AddTransient<IMediaFileService>(provider =>
+            {
+                var folderRepo = provider.GetRequiredService<IFolderRepository>();
+                var fileRepo = provider.GetRequiredService<IMediaFileRepository>();
+                var mediaFileHasTagRepo = provider.GetRequiredService<IMediaFileHasTagRepository>();
+                return new MediaFileService(folderRepo, fileRepo, mediaFileHasTagRepo);
+            });
+
+            services.AddScoped<ITagService, TagService>();
+
+            // Presenters
+            services.AddTransient<IMediaPresenter, MediaPresenter>();
+
+            // Forms
+            services.AddTransient<PlayerForm>();
+
+            return services;
+        }
+    }
+}
